@@ -129,6 +129,6 @@ export function legalHTML(page) {
 }
 
 export function footerHTML() {
-  return `<div class="wrap"><span>© 2026 ${esc(COMPANY.legalName)} · ${esc(COMPANY.city)}</span>
+  return `<div class="wrap"><span>© 2026 ${esc(COMPANY.legalName)}</span>
     <nav aria-label="Footer">${Object.entries(LEGAL_PAGES).map(([k, l]) => `<a href="/${k}" data-legal="${k}">${l}</a>`).join("")}</nav></div>`;
 }
