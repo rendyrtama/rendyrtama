@@ -173,12 +173,53 @@ details.q summary{cursor:pointer;font-weight:600;font-size:14px}
 .desc-tbl th{background:var(--paper);font-family:var(--f-display)}
 .desc-tbl td.b{font-family:var(--f-mono);font-weight:600;font-size:16px;text-align:center;width:52px}
 .foot{font-size:12px;color:var(--muted);margin-top:28px;max-width:80ch}
+/* Structure blueprints: colour = role of the sentence (frame / idea A / idea B / support / opinion) */
+:root{--r-frame:#0f6b6b;--r-frame-soft:#dff1f0;--r-a:#c2416b;--r-a-soft:#fbe6ee;--r-b:#3f8a2a;--r-b-soft:#e6f3df;--r-x:#6b7486;--r-x-soft:#eef0f4;--r-op:#7a4bd1;--r-op-soft:#efe8fb}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--r-frame:#5fc9c4;--r-frame-soft:#14302f;--r-a:#f08aac;--r-a-soft:#3a1d28;--r-b:#8fd370;--r-b-soft:#1f3318;--r-x:#9aa3b4;--r-x-soft:#232a36;--r-op:#b99af5;--r-op-soft:#2a2140}}
+:root[data-theme="dark"]{--r-frame:#5fc9c4;--r-frame-soft:#14302f;--r-a:#f08aac;--r-a-soft:#3a1d28;--r-b:#8fd370;--r-b-soft:#1f3318;--r-x:#9aa3b4;--r-x-soft:#232a36;--r-op:#b99af5;--r-op-soft:#2a2140}
+.bp{display:grid;gap:8px}
+.bp-row{display:grid;grid-template-columns:128px minmax(0,1fr);gap:10px;align-items:stretch}
+@media (max-width:520px){.bp-row{grid-template-columns:minmax(0,1fr)}}
+.bp-part{border-radius:8px;padding:10px;display:flex;flex-direction:column;justify-content:center;gap:2px;font-size:13px;color:#fff}
+.bp-part small{opacity:.9;font-family:var(--f-mono);font-size:11px}
+.bp-part.role-frame{background:var(--r-frame)} .bp-part.role-a{background:var(--r-a)} .bp-part.role-b{background:var(--r-b)} .bp-part.role-x{background:var(--r-x)} .bp-part.role-op{background:var(--r-op)}
+:root[data-theme="dark"] .bp-part{color:var(--sheet)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .bp-part{color:var(--sheet)}}
+.bp-slots{list-style:none;margin:0;padding:0;display:grid;gap:4px;min-width:0}
+.bp-slots li{border-radius:6px;padding:6px 10px;font-size:13px;border-left:4px solid var(--r-x);background:var(--r-x-soft)}
+.bp-slots li.role-frame{border-color:var(--r-frame);background:var(--r-frame-soft)}
+.bp-slots li.role-a{border-color:var(--r-a);background:var(--r-a-soft)}
+.bp-slots li.role-b{border-color:var(--r-b);background:var(--r-b-soft)}
+.bp-slots li.role-op{border-color:var(--r-op);background:var(--r-op-soft)}
+.bp-slots li em{display:block;font-style:normal;color:var(--muted);font-size:12px;margin-top:2px}
+details.guide{margin-top:18px;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+details.guide>summary{cursor:pointer;font-weight:600;font-size:14px}
+details.guide[open]>summary{margin-bottom:12px}
+.tips{display:grid;gap:6px;font-size:13px;margin-top:10px}
+.tips b{font-weight:600}
+.smeter{display:flex;flex-wrap:wrap;gap:6px;padding:8px 16px;border-bottom:1px solid var(--line)}
+.smeter span{font-size:12px;font-family:var(--f-mono);padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-variant-numeric:tabular-nums}
+.smeter span.ok{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.smeter span.warn{border-color:var(--warn);color:var(--warn);background:var(--warn-soft)}
+.checklist{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.checklist label{display:flex;gap:8px;align-items:flex-start;cursor:pointer}
+.checklist input{margin-top:4px;accent-color:var(--accent)}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;margin:0;padding:0;list-style:none}
+.flow li{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.flow li+li::before{content:"→";margin-right:8px;color:var(--muted)}
+.guide-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.guide-grid{grid-template-columns:minmax(0,1fr)}}
+.sample-essay p{margin:0 0 4px;font-family:var(--f-serif);font-size:15px;line-height:1.6}
+.sample-essay .lbl{font-family:var(--f-body);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-top:10px;display:block}
+.stat{display:inline-block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:4px}
+.stat.yes{background:var(--ok-soft);color:var(--ok)} .stat.partial{background:var(--warn-soft);color:var(--warn)} .stat.no{background:var(--mark-soft);color:var(--mark)}
 </style>
 
 <header class="top"><div class="wrap">
-  <div class="brand"><b>IELTS Writing Coach</b><span>Academic practice · marked against the May 2023 band descriptors</span></div>
+  <div class="brand"><b>IELTS Writing Coach</b><span>Academic &amp; General Training · marked against the May 2023 band descriptors</span></div>
   <nav class="tabs" aria-label="Sections">
     <button id="nav-home" data-nav="home" aria-current="true">Practice</button>
+    <button id="nav-guide" data-nav="guide">Structure guide</button>
     <button id="nav-history" data-nav="history">History</button>
     <button id="nav-desc" data-nav="desc">Band descriptors</button>
   </nav>
@@ -337,6 +378,155 @@ const BANK2 = [
  {id:"E24",type:"double",prompt:"More people are now travelling abroad for holidays than ever before.\n\nWhat are the reasons for this? What effects does it have on the places they visit?"}
 ];
 
+/* ---------------- Recommended structures ----------------
+   Task 1: the 4-paragraph plan (Intro 1 · Overview 2 · Body 3–4 · Body 3–4).
+   Task 2: the five structures from the uploaded Writing Structures Guide. Slot = [role, text]. */
+const T1_TIPS = {
+ line:{approach:"Comparison",overview:"Say which lines rose, fell or stayed stable overall, and which was highest/lowest at the end. No numbers.",body1:"Describe the line(s) with the most dramatic change: start figure, key turning points, end figure.",body2:"Describe the remaining line(s) and compare them with the first group (overtook, remained below…).",phrases:["rose steadily / climbed sharply","fell gradually / declined","peaked at … in …","overtook / remained below","fluctuated around"]},
+ bar:{approach:"Comparison",overview:"Name the largest and smallest categories, and the biggest change or difference between groups.",body1:"Group the categories that behave alike (e.g. the ones that grew), with figures.",body2:"Group the other categories (e.g. those that fell or stayed similar), with figures and comparisons.",phrases:["the most popular … was","twice as many / half as much","compared with","by contrast","a far higher proportion of"]},
+ pie:{approach:"Comparison",overview:"Name the largest segment(s) and the main shift between the charts.",body1:"Segments that grew (or the largest segments), with percentages from both charts.",body2:"Segments that shrank or stayed the same, with percentages.",phrases:["accounted for / made up","the largest share","a quarter / almost a third","rose from … to …","the remaining …%"]},
+ mixed:{approach:"Comparison",overview:"One sentence for the main feature of each chart, ideally linking them.",body1:"Details from the first chart.",body2:"Details from the second chart, linking back to the first where it makes sense.",phrases:["The bar chart shows… while the pie chart…","in terms of","as for","this is reflected in"]},
+ table:{approach:"Comparison",overview:"Pick out the highest/lowest rows or the clearest pattern across columns. Don't list everything.",body1:"Group rows or columns with a clear similarity, with selected figures.",body2:"Group the remaining rows or columns, with contrasts.",phrases:["the highest figure was","ranked second","similarly / likewise","whereas","the figure for … was considerably lower"]},
+ process:{approach:"Description",overview:"State how many stages there are, where the process starts and ends, and whether it is natural or man-made, linear or cyclical.",body1:"Describe the first half of the stages in order.",body2:"Describe the second half of the stages to the end (or back to the start if cyclical).",phrases:["First, … / Next, … / After that, … / Finally, …","is collected / is heated (passive voice)","once … has been …","the cycle then begins again"]},
+ map:{approach:"Description",overview:"State the two biggest overall changes (e.g. more buildings, less green space; transport improved).",body1:"Describe one area or one type of change (e.g. the north, or what was removed/replaced).",body2:"Describe the other area or the remaining changes (e.g. the south, or what was added).",phrases:["was replaced by / was converted into","was demolished / was constructed","to the north of / next to / opposite","was extended / was relocated","remained unchanged"]}
+};
+const T1_PARTS = tip => [
+ {name:"Introduction",role:"frame",sent:"1 sentence",target:[1,1],slots:[["frame","Paraphrase the question: what the visual shows, where and when, in your own words."]]},
+ {name:"Overview",role:"op",sent:"2 sentences",target:[2,2],slots:[["op","General main feature 1. "+tip.overview],["op","General main feature 2. No figures in the overview."]]},
+ {name:"Body 1",role:"a",sent:"3–4 sentences",target:[3,4],slots:[["a",tip.body1],["x","Support with accurate figures/details"],["x",tip.approach==="Comparison"?"Make comparisons":"Use sequencing / location language"]]},
+ {name:"Body 2",role:"b",sent:"3–4 sentences",target:[3,4],slots:[["b",tip.body2],["x","Support with accurate figures/details"],["x",tip.approach==="Comparison"?"Make comparisons":"Use sequencing / location language"]]}
+];
+const T1_CHECK = ["My introduction is one sentence that paraphrases the question (no copied phrases).","My overview has two sentences on the main features, with no figures.","Each body paragraph has 3–4 sentences and accurate figures or details.","I compared data (charts/tables) or described stages/changes in order (process/maps).","I gave no opinions or reasons that are not in the visual.","I wrote at least 150 words."];
+const T1_SAMPLE = {q:"L1", parts:[
+ ["Introduction","The line graph illustrates how many hours per week adults in one country devoted to streaming video, reading books and outdoor sport over a twenty-year period from 2000 to 2020."],
+ ["Overview","Overall, streaming video rose dramatically to become the most time-consuming leisure activity, whereas reading was the only pursuit to decline. Outdoor sport, by contrast, remained relatively stable, with only a modest increase towards the end of the period."],
+ ["Body 1","In 2000, adults spent just 2 hours a week streaming video, the lowest figure of the three activities. This figure climbed steadily, overtaking outdoor sport in 2004 at 3.5 hours and reading in 2008 at 5.5 hours. By 2020, it had reached 13 hours per week, more than six times its original level."],
+ ["Body 2","Reading, on the other hand, began as the most popular activity at 6 hours per week but fell gradually throughout the period to 3.8 hours. Time spent on outdoor sport hovered at around 3 hours a week until 2008, before rising to 4.5 hours by 2020. As a result, sport overtook reading in 2016 and finished the period 0.7 hours ahead."]]};
+const T2_COMMON_CHECK = ["My first sentence means the same as the question, in different words.","My topic sentences match the main ideas in my introduction.","I explained each main idea and gave an example.","The main ideas in my conclusion match my introduction.","I varied repeated words and replaced simple words with higher-level ones.","I checked grammar, spelling and meaning.","I wrote at least 250 words."];
+const T2_FLOW_END = ["Fill in the structure","Write the introduction","Write 2 body paragraphs","Write the conclusion from your introduction","Vary and upgrade vocabulary","Correct grammar mistakes"];
+const T2_STRUCT = {
+ opinion:{label:"Opinion essay", flow:["Understand the question","Decide your opinion","Generate 2 ideas + examples"],
+  parts:[{name:"Introduction",role:"frame",sent:"2–4 sentences",target:[2,4],slots:[["frame","Paraphrase the question"],["op","Clear opinion"],["a","Main idea 1"],["b","Main idea 2"]]},
+   {name:"Body 1",role:"a",sent:"4–5 sentences",target:[4,6],slots:[["a","Topic sentence: main idea 1"],["x","Explanation"],["x","Explain further"],["x","Example"]]},
+   {name:"Body 2",role:"b",sent:"4–5 sentences",target:[4,6],slots:[["b","Topic sentence: main idea 2"],["x","Explanation"],["x","Further explanation"],["x","Example"]]},
+   {name:"Conclusion",role:"frame",sent:"2–3 sentences",target:[2,3],slots:[["op","Restate your opinion"],["a","Summary of main idea 1"],["b","Summary of main idea 2"]]}],
+  check:["My opinion is clear and simple in the introduction.","My two ideas are clear in the introduction.","I restated the same opinion in the conclusion and summarised both ideas."],
+  example:{q:"E1",notes:[["Paraphrase: free university for everyone, whatever their family's income","I agree","Equal opportunity","Benefits the whole economy"],["Talent, not wealth, should decide who studies","Fees put off capable students from poorer families","They choose work instead, so their potential is lost","Germany abolished undergraduate tuition fees in 2014"],["A more educated workforce helps everyone","Graduates earn more and pay more tax","The cost of free tuition is partly returned over time","Nordic countries with free tuition have highly skilled workforces"],["I agree because…","It gives equal opportunity","It strengthens the economy"]]}},
+ discussion:{label:"Discuss both views", flow:["Why do people believe view 1?","Why do people believe view 2?","Which side do I agree with?"],
+  parts:[{name:"Introduction",role:"frame",sent:"2–4 sentences",target:[2,4],slots:[["frame","Paraphrase the question"],["a","Briefly outline view 1 (the side you disagree with)"],["b","Briefly outline view 2 (the side you agree with)"],["op","State your opinion"]]},
+   {name:"Body 1",role:"a",sent:"4–5 sentences",target:[4,6],slots:[["a","Topic sentence: view 1"],["x","Explanation"],["x","Example"],["op","State that you disagree, and why"]]},
+   {name:"Body 2",role:"b",sent:"4–5 sentences",target:[4,6],slots:[["b","Topic sentence: view 2"],["x","Explanation"],["x","Example"],["op","State that you agree"]]},
+   {name:"Conclusion",role:"frame",sent:"1–3 sentences",target:[1,3],slots:[["frame","In conclusion,"],["a","…although + view 1 + your opinion about view 1"],["b","…+ why you agree with view 2"]]}],
+  check:["Both sides are clear in the introduction.","My opinion is clear in the introduction.","My opinion is clear at the end of each body paragraph.","I clearly stated both sides and my opinion in the conclusion."],
+  example:{q:"E7",notes:[["Paraphrase: some say zoos are cruel and should close; others say they protect wildlife","Cruelty to animals","Conservation","I agree zoos should stay, because of their role in conservation"],["Zoos are cruel","Animals live in small spaces far from their natural habitat","Big cats pacing in enclosures","Disagree: modern zoos can improve welfare instead of closing"],["Zoos protect wild animals","Breeding programmes save endangered species","The Arabian oryx was reintroduced to the wild after captive breeding","Agree: some species would not survive without zoos"],["In conclusion,","although some animals suffer in poor zoos, this is a reason to improve them,","zoos should remain because they protect endangered species"]]}},
+ advdis:{label:"Advantages & disadvantages", flow:["What are the advantages?","What are the disadvantages?"],
+  parts:[{name:"Introduction",role:"frame",sent:"2–3 sentences",target:[2,4],slots:[["frame","Paraphrase the question"],["a","Briefly state 2 advantages"],["b","Briefly state 2 disadvantages"]]},
+   {name:"Body 1 · Advantages",role:"a",sent:"4–5 sentences",target:[4,6],slots:[["a","Topic sentence 1: state advantage 1"],["x","Explain advantage 1"],["a","Topic sentence 2: state advantage 2"],["x","Explain advantage 2 + give an example"]]},
+   {name:"Body 2 · Disadvantages",role:"b",sent:"4–5 sentences",target:[4,6],slots:[["b","Topic sentence 1: state disadvantage 1"],["x","Explain disadvantage 1"],["b","Topic sentence 2: state disadvantage 2"],["x","Explain disadvantage 2 + give an example"]]},
+   {name:"Conclusion",role:"frame",sent:"2–3 sentences",target:[2,3],slots:[["frame","In conclusion,"],["a","Summarise both advantages"],["b","Summarise both disadvantages"]]}],
+  note:"If the question asks whether the advantages outweigh the disadvantages, also say which side is stronger in your introduction and conclusion.",
+  check:["Two advantages are clearly outlined in the introduction.","Two disadvantages are clearly outlined in the introduction.","I provided one example in each body paragraph.","I clearly summarised my advantages and disadvantages in the conclusion."],
+  example:{q:"E12",notes:[["Paraphrase: taking a year off between school and university to travel or work","Maturity + work experience and savings","Losing study habits + cost and risk"],["Students become more mature","They choose a degree with clearer goals","They gain work experience and save money","e.g. working in a café for a year pays for first-year living costs"],["Students may lose the habit of studying","Returning to academic work can be hard","Travel can be expensive and risky","e.g. some students run out of money abroad and return in debt"],["In conclusion,","a gap year builds maturity and experience","but can weaken study habits and be costly"]]}},
+ problem:{label:"Problem & solution", flow:["What are the problems (or causes)?","What are the solutions?"],
+  parts:[{name:"Introduction",role:"frame",sent:"2–3 sentences",target:[2,4],slots:[["frame","Paraphrase the question"],["a","Briefly state 2 problems (or causes)"],["b","Briefly state 2 solutions"]]},
+   {name:"Body 1 · Problems",role:"a",sent:"4–5 sentences",target:[4,6],slots:[["a","Topic sentence 1: state problem 1"],["x","Explain problem 1"],["a","Topic sentence 2: state problem 2"],["x","Explain problem 2 + give an example"]]},
+   {name:"Body 2 · Solutions",role:"b",sent:"4–5 sentences",target:[4,6],slots:[["b","Topic sentence 1: state solution 1"],["x","Explain solution 1"],["b","Topic sentence 2: state solution 2"],["x","Explain solution 2 + give an example"]]},
+   {name:"Conclusion",role:"frame",sent:"2–3 sentences",target:[2,3],slots:[["frame","In conclusion,"],["a","Summarise both problems"],["b","Summarise both solutions"]]}],
+  check:["Problems are clearly outlined in the introduction.","Solutions are clearly outlined in the introduction.","I provided one example in each body paragraph.","I clearly summarised my problems and solutions in the conclusion."],
+  example:{q:"E15",notes:[["Paraphrase: more and more food is being wasted","Supermarket offers + confusing date labels","Donation laws + clearer labels"],["Bulk offers make people buy too much","Families cannot eat it before it spoils","Date labels confuse shoppers","e.g. people throw away food on its 'best before' date even though it is safe"],["Make supermarkets donate unsold food","Edible food reaches charities instead of bins","Use one clear date label and educate consumers","e.g. France has required large supermarkets to donate unsold food since 2016"],["In conclusion,","over-buying and unclear labels cause waste","donation rules and clearer labels can reduce it"]]}},
+ double:{label:"Two-part question", flow:["Answer the first question","Answer the second question"],
+  parts:[{name:"Introduction",role:"frame",sent:"2–3 sentences",target:[2,4],slots:[["frame","Paraphrase the question"],["a","Directly answer question 1"],["b","Directly answer question 2"]]},
+   {name:"Body 1 · Question 1",role:"a",sent:"4–5 sentences",target:[4,6],slots:[["a","Topic sentence: answer question 1"],["x","Explain"],["x","Explain further"],["x","Example"]]},
+   {name:"Body 2 · Question 2",role:"b",sent:"4–5 sentences",target:[4,6],slots:[["b","Topic sentence: answer question 2"],["x","Explain"],["x","Explain further"],["x","Example"]]},
+   {name:"Conclusion",role:"frame",sent:"2–3 sentences",target:[2,3],slots:[["frame","In conclusion,"],["a","Summarise your answer to question 1"],["b","Summarise your answer to question 2"]]}],
+  check:["The direct answer to question 1 is clear in the introduction.","The direct answer to question 2 is clear in the introduction.","I provided an example for each main idea.","I clearly summarised the answers to both questions in the conclusion."],
+  example:{q:"E20",notes:[["Paraphrase: many people now keep dogs, cats and other pets","Companionship, especially for people who live alone","Positive, because pets improve health"],["People keep pets for companionship","More people live alone than in the past","A pet gives daily company and routine","e.g. older people living alone often say their dog keeps them active and less lonely"],["This is a positive development","Pets improve physical and mental health","Dog owners walk every day and meet other people","e.g. some hospitals and care homes use visiting animals to calm patients"],["In conclusion,","people keep pets for company","and this is positive because it improves wellbeing"]]}}
+};
+/* ---------------- General Training Task 1: letters ---------------- */
+const GT_TYPES = {formal:"Formal letter", semi:"Semi-formal letter", informal:"Informal letter"};
+const ALLT1 = {...T1TYPES, ...GT_TYPES};
+const BANK1G = [
+ {id:"G1",type:"formal",prompt:"You recently bought a piece of equipment for your kitchen, but it did not work. You phoned the shop but no action was taken.\n\nWrite a letter to the shop manager. In your letter\n• describe the problem with the equipment\n• explain what happened when you phoned the shop\n• say what you would like the manager to do\n\nBegin your letter as follows:\nDear Sir or Madam,"},
+ {id:"G2",type:"formal",prompt:"Your local council is planning to close the public library in your area.\n\nWrite a letter to the council. In your letter\n• explain how you use the library\n• describe what effect the closure would have on local people\n• suggest an alternative to closing the library\n\nBegin your letter as follows:\nDear Sir or Madam,"},
+ {id:"G3",type:"formal",prompt:"You have seen an advertisement for a part-time job at a local tourist information centre.\n\nWrite a letter to the manager of the centre. In your letter\n• say why you are interested in the job\n• describe your relevant skills and experience\n• explain when you are available to work\n\nBegin your letter as follows:\nDear Sir or Madam,"},
+ {id:"G4",type:"semi",prompt:"You live in a rented flat. There is a problem with the heating, which your landlord has not repaired.\n\nWrite a letter to your landlord. In your letter\n• describe the problem with the heating\n• explain how it is affecting you\n• say what you want your landlord to do\n\nBegin your letter as follows:\nDear Mr Patel,"},
+ {id:"G5",type:"semi",prompt:"You would like to take two weeks off work to attend a family event in another country.\n\nWrite a letter to your manager. In your letter\n• explain why you need time off\n• suggest how your work could be covered while you are away\n• say when you would like to take the time off\n\nBegin your letter as follows:\nDear Ms Lewis,"},
+ {id:"G6",type:"semi",prompt:"You recently attended an evening course at a local college. You were not happy with some aspects of the course.\n\nWrite a letter to the course tutor. In your letter\n• say what you enjoyed about the course\n• explain what you were not happy with\n• suggest how the course could be improved\n\nBegin your letter as follows:\nDear Mr Brown,"},
+ {id:"G7",type:"informal",prompt:"A friend has invited you to stay with them during the holidays, but you cannot go.\n\nWrite a letter to your friend. In your letter\n• thank your friend for the invitation\n• explain why you cannot go\n• suggest another time when you could meet\n\nBegin your letter as follows:\nDear …,"},
+ {id:"G8",type:"informal",prompt:"You have recently moved to a new home in a different town.\n\nWrite a letter to a friend. In your letter\n• describe your new home\n• explain why you moved\n• invite your friend to visit you\n\nBegin your letter as follows:\nDear …,"},
+ {id:"G9",type:"informal",prompt:"A friend is planning to visit your country for the first time and has asked for your advice.\n\nWrite a letter to your friend. In your letter\n• suggest the best time of year to visit\n• recommend some places to go\n• give advice about what to take\n\nBegin your letter as follows:\nDear …,"}
+];
+const TA_GT = {...TA,
+ 8:"The response covers all the requirements of the task appropriately, relevantly and sufficiently. All bullet points are clearly presented, and appropriately illustrated or extended. There may be occasional omissions or lapses in content.",
+ 7:"The response covers the requirements of the task. The content is relevant and accurate – there may be a few omissions or lapses. The format is appropriate. All bullet points are covered and clearly highlighted but could be more fully or more appropriately illustrated or extended. It presents a clear purpose. The tone is consistent and appropriate to the task. Any lapses are minimal.",
+ 6:"The response focuses on the requirements of the task and an appropriate format is used. All bullet points are covered and adequately highlighted. The purpose is generally clear. There may be minor inconsistencies in tone. Some irrelevant, inappropriate or inaccurate information may occur in areas of detail or when illustrating or extending the main points. Some details may be missing (or excessive) and further extension or illustration may be needed.",
+ 5:"The response generally addresses the requirements of the task. The format may be inappropriate in places. All bullet points are presented but one or more may not be adequately covered. The purpose may be unclear at times. The tone may be variable and sometimes inappropriate. The inclusion of irrelevant, inappropriate or inaccurate material in key areas detracts from the task achievement. There is limited detail when extending and illustrating the main points.",
+ 4:"The response is an attempt to address the task. Not all bullet points are presented. The purpose of the letter is not clearly explained and may be confused. The tone may be inappropriate. The format may be inappropriate. Key features/bullet points which are presented may be irrelevant, repetitive, inaccurate or inappropriate.",
+ 3:"The response does not address the requirements of the task (possibly because of misunderstanding of the situation). Key features/bullet points which are presented may be largely irrelevant. Limited information is presented, and this may be used repetitively."};
+const KEY_CRITERIA = {
+ general:"Scripts may be penalised if they are partly or wholly plagiarised, or not written as full, connected text (bullet points or note form in any part of the response are not appropriate). Task 2 carries more weight than Task 1.",
+ TA_ac:"Academic Task 1 is an information-transfer task about the factual content of the visual, not speculative explanations outside the data. TA assesses: selecting key features; giving sufficient detail to illustrate them; reporting information, figures and trends accurately; comparing/contrasting by highlighting trends, principal changes or differences (rather than mechanical description of detail); an appropriate format. Minimum 150 words.",
+ TA_gt:"General Training Task 1 is a letter. TA assesses: clearly explaining the purpose of the letter; fully addressing the three bullet-pointed requirements; extending these three functions appropriately and relevantly; an appropriate letter format; a tone consistently appropriate to the task. Minimum 150 words.",
+ TR:"TR assesses: how fully the candidate responds to the task; how adequately main ideas are extended and supported; how relevant the ideas are; how clearly the candidate opens the discourse, establishes their position and formulates conclusions; how appropriate the format is. Minimum 250 words; ideas supported by evidence, examples may come from experience.",
+ CC:"CC assesses: logical organisation of information/ideas or progression of the argument; appropriate paragraphing; logical sequencing within and across paragraphs; flexible reference and substitution (articles, pronouns); appropriate discourse markers to mark stages (First of all, In conclusion) and relationships (as a result, similarly).",
+ LR:"LR assesses: range of general words (synonyms to avoid repetition); adequacy and appropriacy of vocabulary (topic-specific items, indicators of attitude); precision of word choice; control of collocations, idiomatic expressions and sophisticated phrasing; density and effect of spelling errors; density and effect of word-formation errors.",
+ GRA:"GRA assesses: range and appropriacy of structures (simple, compound, complex sentences); accuracy of those sentences; density and communicative effect of grammatical errors; accurate and appropriate punctuation."
+};
+const LETTER_TIPS = {
+ formal:{greet:"Dear Sir or Madam,",close:"Yours faithfully,",tone:"Formal: no contractions, polite and impersonal (I am writing to…, I would be grateful if…)."},
+ semi:{greet:"Dear Mr/Ms + surname,",close:"Yours sincerely,",tone:"Semi-formal: polite and respectful, but you know the person (I hope you are well. I am writing about…)."},
+ informal:{greet:"Dear + first name,",close:"Best wishes, / Love,",tone:"Informal: friendly and personal; contractions and phrasal verbs are fine (Thanks so much for…, I can't wait to…)."}
+};
+const LETTER_PARTS = tip => [
+ {name:"Greeting",role:"frame",sent:"1 line",target:[1,1],slots:[["frame",tip.greet+" (use the one given in the task)"]]},
+ {name:"Opening",role:"op",sent:"1–2 sentences",target:[1,2],slots:[["op","State the purpose of the letter clearly (why you are writing)."]]},
+ {name:"Bullet 1",role:"a",sent:"2–4 sentences",target:[2,4],slots:[["a","Answer bullet point 1"],["x","Extend it with details or a reason"]]},
+ {name:"Bullet 2",role:"b",sent:"2–4 sentences",target:[2,4],slots:[["b","Answer bullet point 2"],["x","Extend it with details or a reason"]]},
+ {name:"Bullet 3",role:"a",sent:"2–4 sentences",target:[2,4],slots:[["a","Answer bullet point 3"],["x","Extend it with details or a request"]]},
+ {name:"Closing",role:"frame",sent:"1–2 sentences",target:[1,2],slots:[["frame","Closing line: what happens next, or a friendly ending."],["frame","Sign off: "+tip.close+" then your name"]]}
+];
+const LETTER_CHECK = ["The purpose of my letter is clear in the opening.","I covered all three bullet points, each in its own paragraph.","I extended each bullet point with details or reasons.","My tone stays the same throughout and fits the reader.","My greeting and sign-off match (Sir or Madam → faithfully; name → sincerely).","I wrote full sentences (no bullet points or notes) and at least 150 words."];
+const LETTER_SAMPLE = {q:"G1", parts:[
+ ["Greeting","Dear Sir or Madam,"],
+ ["Opening","I am writing to complain about a coffee machine I bought from your store on 3 March and the poor service I have received since."],
+ ["Bullet 1","When I used the machine for the first time, it made a loud noise and leaked water all over the counter. The heating element also failed to warm the water, so it was impossible to make a single cup of coffee."],
+ ["Bullet 2","I phoned your customer service line the following day and explained the problem to a member of staff, who promised that someone would call me back within 48 hours. However, nobody has contacted me, and when I called again last week, I was simply told to wait."],
+ ["Bullet 3","I would therefore be grateful if you could arrange either a full refund or a replacement machine. I would also appreciate it if your staff could collect the faulty machine from my home, as it is heavy and difficult to transport."],
+ ["Closing","I look forward to hearing from you at your earliest convenience.\nYours faithfully,\nMaria Lopez"]]};
+CRIT.g1 = [{key:"TA",name:"Task Achievement",d:TA_GT}, ...CRIT[1].slice(1)];
+function detectGT(p){ const s=String(p).toLowerCase(); if (/dear (sir|madam)|council|manager of|company|editor/.test(s)) return "formal"; if (/friend|dear …|dear \.\.\./.test(s)) return "informal"; return "semi"; }
+function detectT2(p){ const s=String(p).toLowerCase();
+  if (/discuss both|both (these |the )?views|both sides/.test(s)) return "discussion";
+  if (/advantage|disadvantage|drawback|outweigh/.test(s)) return "advdis";
+  if (/agree or disagree|to what extent|do you agree/.test(s)) return "opinion";
+  if (/solution|solve|measures|what can be done|could be done|tackle/.test(s)) return "problem";
+  if ((s.match(/\?/g)||[]).length>=2) return "double";
+  return "opinion"; }
+function detectT1(p){ const s=String(p).toLowerCase(), hits=[["map",/\bmaps?\b|\bplan\b/],["process",/process|diagram|stages|produced|life cycle|how .* (is|are) made/],["table",/\btable\b/],["pie",/\bpie\b/],["bar",/\bbar\b/],["line",/\bline\b|\bgraph\b/]].filter(([,r])=>r.test(s)).map(([k])=>k);
+  return hits.length>1 && !hits.includes("map") && !hits.includes("process") ? "mixed" : (hits[0]||"line"); }
+const isGT = t => t.module==="general";
+function typeOf(t){ return t.q.type || t.q.guessType || (t.task===1 ? (isGT(t) ? detectGT(t.q.prompt) : detectT1(t.q.prompt)) : detectT2(t.q.prompt)); }
+function blueprint(t){ const ty = typeOf(t);
+  if (t.task===1 && isGT(t)) return {label:GT_TYPES[ty], parts:LETTER_PARTS(LETTER_TIPS[ty]), letter:LETTER_TIPS[ty], check:LETTER_CHECK, letterMode:true};
+  return t.task===1 ? {label:T1TYPES[ty], parts:T1_PARTS(T1_TIPS[ty]), tip:T1_TIPS[ty], check:T1_CHECK} : {...T2_STRUCT[ty], check:[...T2_STRUCT[ty].check, ...T2_COMMON_CHECK]}; }
+const critOf = t => t.task===1 && isGT(t) ? CRIT.g1 : CRIT[t.task];
+const typeLabel = t => t.q.type ? (t.task===1 ? ALLT1[t.q.type] : T2TYPES[t.q.type]) : null;
+function blueprintHTML(parts, notes){
+  return `<div class="bp">${parts.map((p,pi)=>`<div class="bp-row"><div class="bp-part role-${p.role}"><b>${esc(p.name)}</b><small>${esc(p.sent)}</small></div><ol class="bp-slots">${p.slots.map(([r,s],si)=>`<li class="role-${r}">${notes?esc(notes[pi]?.[si]||"")+`<em>${esc(s)}</em>`:esc(s)}</li>`).join("")}</ol></div>`).join("")}</div>`;
+}
+function blueprintText(t){ const bp = blueprint(t); return `${t.task===1?"Task 1":bp.label} structure:\n` + bp.parts.map(p=>`- ${p.name} (${p.sent}): ${p.slots.map(s=>s[1]).join(" | ")}`).join("\n"); }
+function checklistHTML(items, id){ return `<ul class="checklist">${items.map((c,i)=>`<li><label><input type="checkbox" id="${id}-${i}"> <span>${esc(c)}</span></label></li>`).join("")}</ul>`; }
+const sentences = p => Math.max(1, (p.match(/[.!?]+(?=\s|$)/g)||[]).length);
+function paragraphs(text){ return String(text).split(/\n+/).map(s=>s.trim()).filter(Boolean); }
+function structureMeter(t){
+  const parts = blueprint(t).parts, paras = paragraphs(t.answer);
+  const chips = parts.map((p,i)=>{ const para = paras[i]; if (!para) return `<span title="${esc(p.sent)}">${esc(p.name.split(" · ")[0])} —</span>`;
+    const n = sentences(para), ok = n>=p.target[0] && n<=p.target[1];
+    return `<span class="${ok?"ok":"warn"}" title="Recommended: ${esc(p.sent)}">${esc(p.name.split(" · ")[0])} ${n}s${ok?" ✓":` (aim ${p.target[0]===p.target[1]?p.target[0]:p.target[0]+"–"+p.target[1]})`}</span>`; });
+  if (paras.length>parts.length && !blueprint(t).letterMode) chips.push(`<span class="warn">+${paras.length-parts.length} extra paragraph${paras.length-parts.length>1?"s":""}</span>`);
+  return chips.join("");
+}
+
 /* ---------------- Utilities ---------------- */
 const $ = (s, r=document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -481,7 +671,7 @@ function describeVisual(v){
 /* ---------------- State ---------------- */
 let sample = null, sampleReady = false, imagesOK = false;
 const app = $("#app");
-const setup = Object.assign({source:"random", mode:"both", timed:true, t1type:"any", t2type:"any", customTask:1, customText:"", customDesc:""}, store.get("iwc.setup", {}));
+const setup = Object.assign({module:"academic", showGuide:true, t1typeGT:"any", source:"random", mode:"both", timed:true, t1type:"any", t2type:"any", customTask:1, customText:"", customDesc:""}, store.get("iwc.setup", {}));
 let customImage = null; // {blob, url}
 let current = store.get("iwc.current", null);
 let tick = null;
@@ -503,7 +693,7 @@ function nav(to){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current", String(b.dataset.nav===(to==="result"?"history":to==="test"?"home":to))));
   if (tick && to!=="test"){ clearInterval(tick); tick=null; }
   window.scrollTo(0,0);
-  if (to==="home") renderHome(); else if (to==="history") renderHistory(); else if (to==="desc") renderDesc(); else if (to==="test") renderTest(); else if (to==="result") renderResult();
+  if (to==="home") renderHome(); else if (to==="guide") renderGuide(); else if (to==="history") renderHistory(); else if (to==="desc") renderDesc(); else if (to==="test") renderTest(); else if (to==="result") renderResult();
 }
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{ if (view==="test" && !confirmLeave()) return; nav(b.dataset.nav); }));
 function confirmLeave(){ return true; } // drafts are autosaved; the test can be resumed from Practice
@@ -520,20 +710,24 @@ function renderHome(){
   const timeMins = random ? mins : (setup.customTask==1?LIMITS.t1:LIMITS.t2);
   app.innerHTML = `<main class="wrap"><div class="home">
    <section>
-    <div class="hero"><div class="eyebrow">Academic Writing practice</div><h1>Sit a writing test, then get it marked band by band.</h1>
+    <div class="hero"><div class="eyebrow">${setup.module==="general"?"General Training":"Academic"} Writing practice</div><h1>Sit a writing test, then get it marked band by band.</h1>
      <p>Pick a random exam-style question or paste one you found. Write against the clock, and Claude marks it on the four official criteria with corrections and a path to the next band.</p></div>
     ${current && !current.submitted ? `<div class="banner info" style="margin-top:18px"><span>You have an unfinished ${current.mode==="both"?"full test":current.mode==="t1"?"Task 1":"Task 2"} from ${fmtDate(current.startedAt)}.</span><span style="margin-left:auto;display:flex;gap:8px"><button class="btn small primary" id="resume">Resume</button><button class="btn small" id="discard">Discard</button></span></div>`:""}
     ${sampleReady && !sample ? `<div class="banner warn" style="margin-top:18px">Marking needs Claude, which isn't available in this view. Open this page on claude.ai while signed in. You can still practise and keep your answers.</div>`:""}
     <div class="panel setup" style="margin-top:20px">
+     <div class="field"><span class="lbl">Test module</span><div class="seg">${segBtn("module","academic","Academic","Task 1: graph, chart, table, diagram, map",setup.module)}${segBtn("module","general","General Training","Task 1: letter",setup.module)}</div></div>
      <div class="field"><span class="lbl">Question source</span><div class="seg">${segBtn("source","random","Random question","from the practice bank",setup.source)}${segBtn("source","custom","My own question","paste a prompt you found",setup.source)}</div></div>
      <div class="field"><span class="lbl">${random?"What to practise":"Which task is it?"}</span><div class="seg">${modeSeg}</div></div>
-     ${random && setup.mode!=="t2" ? `<div class="field"><span class="lbl">Task 1 type</span><div class="chips">${[["any","Any (random)"],...Object.entries(T1TYPES)].map(([k,l])=>`<button type="button" data-g="t1type" data-v="${k}" aria-pressed="${setup.t1type===k}">${l}</button>`).join("")}</div></div>`:""}
+     ${random && setup.mode!=="t2" ? (setup.module==="general"
+       ? `<div class="field"><span class="lbl">Task 1 letter type</span><div class="chips">${[["any","Any (random)"],...Object.entries(GT_TYPES)].map(([k,l])=>`<button type="button" data-g="t1typeGT" data-v="${k}" aria-pressed="${setup.t1typeGT===k}">${l}</button>`).join("")}</div></div>`
+       : `<div class="field"><span class="lbl">Task 1 type</span><div class="chips">${[["any","Any (random)"],...Object.entries(T1TYPES)].map(([k,l])=>`<button type="button" data-g="t1type" data-v="${k}" aria-pressed="${setup.t1type===k}">${l}</button>`).join("")}</div></div>`):""}
      ${random && setup.mode!=="t1" ? `<div class="field"><span class="lbl">Task 2 essay type</span><div class="chips">${[["any","Any (random)"],...Object.entries(T2TYPES)].map(([k,l])=>`<button type="button" data-g="t2type" data-v="${k}" aria-pressed="${setup.t2type===k}">${l}</button>`).join("")}</div></div>`:""}
-     ${!random ? `<div class="field"><label for="ctext">Question text</label><textarea id="ctext" class="input" placeholder="${setup.customTask==1?"e.g. The chart below shows the percentage of people who used public libraries in four countries between 2000 and 2020. Summarise the information…":"e.g. Some people think that all teenagers should be required to do unpaid work in their free time. To what extent do you agree or disagree?"}">${esc(setup.customText)}</textarea></div>
-       ${setup.customTask==1 ? `<div class="field"><span class="lbl">Chart, table, diagram or map</span>
+     ${!random ? `<div class="field"><label for="ctext">Question text</label><textarea id="ctext" class="input" placeholder="${setup.customTask==1&&setup.module==="general"?"e.g. You recently stayed at a hotel and left a bag there. Write a letter to the hotel manager. In your letter • describe the bag… Begin your letter as follows: Dear Sir or Madam,":setup.customTask==1?"e.g. The chart below shows the percentage of people who used public libraries in four countries between 2000 and 2020. Summarise the information…":"e.g. Some people think that all teenagers should be required to do unpaid work in their free time. To what extent do you agree or disagree?"}">${esc(setup.customText)}</textarea></div>
+       ${setup.customTask==1 && setup.module!=="general" ? `<div class="field"><span class="lbl">Chart, table, diagram or map</span>
          <div class="drop" id="drop">${customImage?`<img src="${customImage.url}" alt="Uploaded task visual">`:""}<div style="display:grid;gap:6px;flex:1;min-width:200px"><span class="muted" style="font-size:13px">${imagesOK?"Upload a screenshot or photo so the examiner can check your figures (PNG, JPG, WebP).":"Upload a picture to see it while you write. To have figures checked, also type the key data below."}</span><span style="display:flex;gap:8px;flex-wrap:wrap"><label class="btn small" for="cimg">${customImage?"Replace image":"Choose image"}</label>${customImage?`<button class="btn small" id="cimgx" type="button">Remove</button>`:""}</span><input type="file" id="cimg" accept="image/png,image/jpeg,image/webp,image/gif" hidden></div></div>
          <textarea id="cdesc" class="input" style="min-height:80px" placeholder="Optional: type the key figures (e.g. Canada 2000 = 45%, 2020 = 30%…). This helps the examiner judge accuracy.">${esc(setup.customDesc)}</textarea></div>`:""}`:""}
      <div class="field"><span class="lbl">Timing</span><div class="seg">${segBtn("timed","true","Exam timing",`${timeMins}:00 countdown`,String(setup.timed))}${segBtn("timed","false","No time limit","stopwatch only",String(setup.timed))}</div></div>
+     <div class="field"><span class="lbl">Structure help</span><div class="seg">${segBtn("showGuide","true","Show structure while writing","blueprint + live paragraph check",String(setup.showGuide))}${segBtn("showGuide","false","Hide it","closer to the real exam",String(setup.showGuide))}</div></div>
      <div class="startrow"><button class="btn primary" id="start">${random?"Start test":"Start writing"}</button><span class="muted" style="font-size:13px">${random?`${setup.mode==="both"?"Task 1 + Task 2":setup.mode==="t1"?"One Task 1 question":"One Task 2 question"} · ${setup.timed?timeMins+" minutes":"untimed"}`:"Your question · "+(setup.timed?timeMins+" minutes":"untimed")}</span></div>
     </div>
    </section>
@@ -543,9 +737,9 @@ function renderHome(){
      <ol class="steps"><li>Each task gets a whole band (0–9) on four criteria, matched against the official descriptors.</li><li>Task band = average of the four, rounded to the nearest half band.</li><li>Overall writing band: Task 2 counts twice as much as Task 1.</li><li>Under 150 / 250 words is penalised in Task Achievement / Response, as examiners do.</li></ol>
      <p class="muted" style="font-size:12px;margin:12px 0 0">Scores are estimates from an AI examiner, not official results.</p></div>
    </aside></div>
-   <p class="foot">Practice questions are original and written in the style of common exam topics. All figures in charts, tables and maps are invented for practice.</p></main>`;
+   <p class="foot">Practice questions are original and written in the style of common exam topics. All figures in charts, tables and maps are invented for practice. Task 2 structures follow your uploaded Writing Structures Guide; see the Structure guide tab.</p></main>`;
   app.querySelectorAll(".seg button,.chips button").forEach(b=>b.addEventListener("click",()=>{
-    const g=b.dataset.g, v=b.dataset.v; setup[g] = g==="timed" ? v==="true" : g==="customTask" ? Number(v) : v; saveSetup(); renderHome();
+    const g=b.dataset.g, v=b.dataset.v; setup[g] = (g==="timed"||g==="showGuide") ? v==="true" : g==="customTask" ? Number(v) : v; saveSetup(); renderHome();
   }));
   const ct=$("#ctext"); ct && ct.addEventListener("input",()=>{ setup.customText=ct.value; saveSetup(); });
   const cd=$("#cdesc"); cd && cd.addEventListener("input",()=>{ setup.customDesc=cd.value; saveSetup(); });
@@ -569,7 +763,7 @@ function progressHTML(H){
    <div class="hist-list">${H.slice(0,4).map(histRow).join("")}</div>${H.length>4?`<button class="btn small" style="margin-top:10px" onclick="document.getElementById('nav-history').click()">See all ${H.length} tests</button>`:""}`;
 }
 function histRow(h){
-  const label = h.tasks.map(t=>t.task===1?(t.q.type?T1TYPES[t.q.type]:"Task 1 (own)"):(t.q.type?T2TYPES[t.q.type].split(" (")[0]:"Task 2 (own)")).join(" + ");
+  const label = (h.module==="general"?"GT · ":"") + h.tasks.map(t=>typeLabel(t)?typeLabel(t).split(" (")[0]:`Task ${t.task} (own)`).join(" + ");
   return `<button class="hist" data-id="${h.id}"><span class="t">${esc(label)}</span><span class="bandchip">${fmtBand(h.overall)}</span><span class="d">${fmtDate(h.finishedAt)} · ${h.tasks.map(t=>`T${t.task} ${fmtBand(t.result?.taskBand)}`).join(" · ")}</span></button>`;
 }
 
@@ -580,20 +774,31 @@ function startTest(){
     mode = setup.mode;
     const recent = new Set(history().slice(0,15).flatMap(h=>h.tasks.map(t=>t.q.id)));
     const choose = (bank, type) => { let pool = bank.filter(q=>type==="any"||q.type===type); const fresh = pool.filter(q=>!recent.has(q.id)); return pick(fresh.length?fresh:pool); };
-    if (mode!=="t2") tasks.push({task:1, q:choose(BANK1, setup.t1type), answer:""});
+    if (mode!=="t2") tasks.push({task:1, q: setup.module==="general" ? choose(BANK1G, setup.t1typeGT) : choose(BANK1, setup.t1type), answer:""});
     if (mode!=="t1") tasks.push({task:2, q:choose(BANK2, setup.t2type), answer:""});
   } else {
     const text = setup.customText.trim();
     if (text.length<15){ const t=$("#ctext"); t.focus(); t.style.borderColor="var(--mark)"; t.placeholder="Paste or type the question first."; return; }
     mode = setup.customTask==1 ? "t1" : "t2";
-    tasks.push({task:setup.customTask, q:{id:"custom-"+Date.now(), custom:true, prompt:text, desc:setup.customTask==1?setup.customDesc.trim():"", hasImage: setup.customTask==1 && !!customImage}, answer:""});
+    tasks.push({task:setup.customTask, q:{id:"custom-"+Date.now(), custom:true, prompt:text, desc:setup.customTask==1?setup.customDesc.trim():"", hasImage: setup.customTask==1 && setup.module!=="general" && !!customImage}, answer:""});
   }
-  current = {id:"t"+Date.now(), mode, timed:setup.timed, limit:LIMITS[mode]*60, startedAt:Date.now(), tasks, active:0, submitted:false};
+  tasks.forEach(t=>t.module=setup.module);
+  current = {id:"t"+Date.now(), module:setup.module, showGuide:setup.showGuide, mode, timed:setup.timed, limit:LIMITS[mode]*60, startedAt:Date.now(), tasks, active:0, submitted:false};
   saveCurrent(); nav("test");
 }
 function rubric(t){
+  if (t.task===1 && isGT(t)) return {head:"WRITING TASK 1", spend:"You should spend about 20 minutes on this task.", req:"", min:"Write at least 150 words. You do NOT need to write any addresses.", target:150};
   if (t.task===1) return {head:"WRITING TASK 1", spend:"You should spend about 20 minutes on this task.", req:"Summarise the information by selecting and reporting the main features, and make comparisons where relevant.", min:"Write at least 150 words.", target:150};
   return {head:"WRITING TASK 2", spend:"You should spend about 40 minutes on this task.", req:"Give reasons for your answer and include any relevant examples from your own knowledge or experience.", min:"Write at least 250 words.", target:250, pre:"Write about the following topic:"};
+}
+function guidePanelHTML(t,i){
+  const bp = blueprint(t), ty = typeOf(t);
+  const chooser = t.q.custom ? `<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:10px">Question type <select class="input" style="width:auto;padding:4px 8px" data-gtype="${i}">${Object.entries(t.task===1?(isGT(t)?GT_TYPES:T1TYPES):T2TYPES).map(([k,l])=>`<option value="${k}" ${k===ty?"selected":""}>${l}</option>`).join("")}</select></label>` : "";
+  const tips = bp.tip ? `<div class="tips"><div><b>Approach:</b> ${bp.tip.approach==="Comparison"?"make comparisons":"describe stages/changes in order"}.</div><div><b>Useful language:</b> ${bp.tip.phrases.map(esc).join(" · ")}</div></div>`
+    : bp.letter ? `<div class="tips"><div><b>Tone:</b> ${esc(bp.letter.tone)}</div><div><b>Open / close:</b> ${esc(bp.letter.greet)} → ${esc(bp.letter.close)}</div></div>`
+    : `${bp.note?`<div class="tips"><div>${esc(bp.note)}</div></div>`:""}<div class="tips"><div><b>Plan first:</b></div></div><ul class="flow" style="margin-top:6px">${[...bp.flow,...T2_FLOW_END].map(f=>`<li>${esc(f)}</li>`).join("")}</ul>`;
+  return `<details class="guide" open><summary>Recommended structure · ${esc(bp.label||"")}</summary>${chooser}${blueprintHTML(bp.parts)}${tips}
+    <details style="margin-top:12px"><summary style="cursor:pointer;font-size:13px;font-weight:600">Checklist before you submit</summary><div style="margin-top:8px">${checklistHTML(bp.check,"ck"+i)}</div></details></details>`;
 }
 function renderTest(){
   if (!current){ nav("home"); return; }
@@ -607,27 +812,30 @@ function renderTest(){
    <main class="wrap" style="padding-top:0">
      <div id="tup"></div>
      ${c.tasks.map((t,i)=>{ const r=rubric(t); return `<div class="desk" data-pane="${i}" ${c.active===i?"":"hidden"}>
-       <section class="qpaper"><div class="eyebrow">${r.head}${t.q.type?` · ${t.task===1?T1TYPES[t.q.type]:T2TYPES[t.q.type]}`:" · your question"}</div>
+       <section class="qpaper"><div class="eyebrow">${r.head}${typeLabel(t)?` · ${typeLabel(t)}`:" · your question"}</div>
          <p class="rubric">${r.spend}</p>${r.pre?`<p class="rubric" style="margin-bottom:0">${r.pre}</p>`:""}
          <div class="prompt">${esc(t.q.prompt)}</div>
          ${t.task===1&&!t.q.custom?`<p class="req">${r.req}</p>`:""}${t.task===2&&!t.q.custom?`<p class="req">${r.req}</p>`:""}<p class="req">${r.min}</p>
          ${t.q.visual?`<div class="visual">${renderVisual(t.q.visual)}</div>`:""}
          ${t.q.custom && t.q.hasImage && customImage?`<div class="visual"><img src="${customImage.url}" alt="Task visual you uploaded" style="border-radius:8px;border:1px solid var(--line)"></div>`:""}
          ${t.q.custom && t.q.desc?`<div class="visual"><div class="vt" style="text-align:left">Key data you entered</div><div style="white-space:pre-wrap;font-size:14px">${esc(t.q.desc)}</div></div>`:""}
+         ${c.showGuide!==false?guidePanelHTML(t,i):""}
        </section>
        <section class="sheet"><div class="sheet-head"><span class="eyebrow">Answer sheet · Task ${t.task}</span><span class="wc" id="wc${i}"></span></div>
+         ${c.showGuide!==false?`<div class="smeter" id="sm${i}" aria-live="polite"></div>`:""}
          <textarea class="answer" id="ans${i}" spellcheck="false" autocomplete="off" aria-label="Your answer for Task ${t.task}" placeholder="Start writing here…">${esc(t.answer)}</textarea></section>
      </div>`; }).join("")}
      <p class="foot">Spell-check is off, as in the real test. Your writing is saved in this browser as you type.</p>
    </main>`;
   c.tasks.forEach((t,i)=>{
     const ta=$("#ans"+i);
-    const upd=()=>{ t.answer=ta.value; const n=words(ta.value), tgt=rubric(t).target; const el=$("#wc"+i); el.className="wc "+(n>=tgt?"okc":"short"); el.innerHTML=`<b>${n}</b> / ${tgt} words`; const tw=$("#tw"+i); if(tw) tw.textContent=n+"w"; };
+    const upd=()=>{ t.answer=ta.value; const n=words(ta.value), tgt=rubric(t).target; const el=$("#wc"+i); el.className="wc "+(n>=tgt?"okc":"short"); el.innerHTML=`<b>${n}</b> / ${tgt} words`; const tw=$("#tw"+i); if(tw) tw.textContent=n+"w"; const sm=$("#sm"+i); if(sm) sm.innerHTML=`<span style="border:0;padding-left:0">Paragraphs (one per line):</span>`+structureMeter(t); };
     upd(); ta.addEventListener("input",()=>{ upd(); saveCurrent(); });
   });
   app.querySelectorAll(".tasktabs button").forEach(b=>b.addEventListener("click",()=>{ c.active=Number(b.dataset.i); saveCurrent();
     app.querySelectorAll(".tasktabs button").forEach(x=>x.setAttribute("aria-current",String(x===b))); app.querySelectorAll("[data-pane]").forEach(p=>p.hidden = Number(p.dataset.pane)!==c.active); }));
   $("#submit").addEventListener("click", submitTest);
+  app.querySelectorAll("[data-gtype]").forEach(sel=>sel.addEventListener("change",()=>{ const t=c.tasks[Number(sel.dataset.gtype)]; t.q.guessType=sel.value; saveCurrent(); renderTest(); }));
   if (tick) clearInterval(tick);
   const update = () => {
     const el=$("#timer"); if(!el){ clearInterval(tick); tick=null; return; }
@@ -661,25 +869,36 @@ function submitTest(){
   nav("result");
   test.tasks.forEach((t,i)=>gradeTask(i));
 }
-function descriptorText(task){
-  return CRIT[task].map(cr=>`### ${cr.name} (${cr.key})\n`+[9,8,7,6,5,4,3,2,1].map(b=>`Band ${b}: ${cr.d[b]}`).join("\n")).join("\n\n") + "\n\n" + BAND0;
+function descriptorText(t){
+  return critOf(t).map(cr=>`### ${cr.name} (${cr.key})\n`+[9,8,7,6,5,4,3,2,1].map(b=>`Band ${b}: ${cr.d[b]}`).join("\n")).join("\n\n") + "\n\n" + BAND0;
 }
 function buildPrompt(t){
   const r = rubric(t), n = words(t.answer);
   const taskInfo = t.task===1
-    ? `IELTS Academic Writing Task 1.\nQuestion: ${t.q.prompt}\n${t.q.custom?"":r.req+"\n"}Write at least 150 words.\n\n` + (t.q.visual ? `THE VISUAL (exact data the candidate saw):\n${describeVisual(t.q.visual)}\n` : (t.q.desc?`KEY DATA supplied by the candidate:\n${t.q.desc}\n`:"") + (t.q.hasImage?"The task visual is attached as an image.\n":"") + (!t.q.desc && !t.q.hasImage ? "The visual was not provided; judge data accuracy only where it is evident from the question.\n":""))
+    ? isGT(t) ? `IELTS General Training Writing Task 1 (letter).\nQuestion: ${t.q.prompt}\nWrite at least 150 words.\n`
+    : `IELTS Academic Writing Task 1.\nQuestion: ${t.q.prompt}\n${t.q.custom?"":r.req+"\n"}Write at least 150 words.\n\n` + (t.q.visual ? `THE VISUAL (exact data the candidate saw):\n${describeVisual(t.q.visual)}\n` : (t.q.desc?`KEY DATA supplied by the candidate:\n${t.q.desc}\n`:"") + (t.q.hasImage?"The task visual is attached as an image.\n":"") + (!t.q.desc && !t.q.hasImage ? "The visual was not provided; judge data accuracy only where it is evident from the question.\n":""))
     : `IELTS Writing Task 2.\nQuestion: ${t.q.prompt}\nWrite at least 250 words.\n`;
   return `You are a senior, fully certified IELTS Writing examiner. Mark the candidate's response strictly against the official IELTS Writing Task ${t.task} band descriptors (updated May 2023) quoted below. Be calibrated to real exam standards; do not inflate scores to encourage the candidate.
 
 MARKING RULES
 - Award each of the four criteria a WHOLE band from 0 to 9. A script must fully fit the positive features of the descriptor at a level to be awarded that band; negative features at a level limit the rating.
 - Responses of 20 words or fewer are rated Band 1 on every criterion. Any copied rubric/question wording must be discounted from credit.
-- ${t.task===1?"Under 150 words: penalise in Task Achievement (and Lexical Resource may be limited by insufficient evidence). Task 1 must have a clear overview of main trends/differences/stages for TA 6+ (a clear overview for 7+). Check figures against the data; inaccurate data limits TA. Opinions or reasons not in the visual are irrelevant.":"Under 250 words: penalise in Task Response. A clear position throughout is needed for TR 7+. Every part of the question must be addressed. Memorised, off-topic or formulaic content is penalised."}
+- ${t.task===1&&isGT(t)?"Under 150 words: penalise in Task Achievement. All three bullet points must be covered and extended; the purpose must be clear; tone must suit the reader and stay consistent; the letter format (greeting and sign-off) must be appropriate.":t.task===1?"Under 150 words: penalise in Task Achievement (and Lexical Resource may be limited by insufficient evidence). Task 1 must have a clear overview of main trends/differences/stages for TA 6+ (a clear overview for 7+). Check figures against the data; inaccurate data limits TA. Opinions or reasons not in the visual are irrelevant.":"Under 250 words: penalise in Task Response. A clear position throughout is needed for TR 7+. Every part of the question must be addressed. Memorised, off-topic or formulaic content is penalised."}
 - Quote the candidate's own words as evidence. In "corrections", "original" MUST be an exact substring copied from the response so it can be highlighted.
 - The word count measured by the page is ${n} words.
 
-OFFICIAL BAND DESCRIPTORS — WRITING TASK ${t.task}
-${descriptorText(t.task)}
+OFFICIAL BAND DESCRIPTORS — ${isGT(t)&&t.task===1?"GENERAL TRAINING ":t.task===1?"ACADEMIC ":""}WRITING TASK ${t.task}
+${descriptorText(t)}
+
+KEY ASSESSMENT CRITERIA (official IELTS Writing Key Assessment Criteria)
+${t.task===1?(isGT(t)?KEY_CRITERIA.TA_gt:KEY_CRITERIA.TA_ac):KEY_CRITERIA.TR}
+${KEY_CRITERIA.CC}
+${KEY_CRITERIA.LR}
+${KEY_CRITERIA.GRA}
+${KEY_CRITERIA.general}
+
+RECOMMENDED STRUCTURE (the candidate's study plan — use it ONLY for the "structure" feedback, NOT to change band scores; mark bands strictly by the descriptors)
+${blueprintText(t)}
 
 TASK
 ${taskInfo}
@@ -700,7 +919,8 @@ Reply with ONLY one JSON object, no other text, in exactly this shape:
  "strengths":["2-4 items"],
  "priorities":["the 3 most valuable things to fix next time, most important first"],
  "corrections":[{"original":"exact text from response","corrected":"fixed version","type":"grammar|vocabulary|spelling|punctuation|cohesion|task","why":"short reason"}],
- "upgrades":[{"original":"plain phrase from response","better":"more precise or less common alternative","why":"short reason"}]
+ "upgrades":[{"original":"plain phrase from response","better":"more precise or less common alternative","why":"short reason"}],
+ "structure":{"comment":"1-2 sentences on how closely the response follows the recommended structure","parts":[${blueprint(t).parts.map(p=>`{"part":"${p.name}","status":"yes|partial|no","note":"what is there or missing, one sentence"}`).join(",")}]}
 }
 Give up to 12 corrections (the most important errors first) and up to 6 upgrades. Use empty arrays if there are none.`;
 }
@@ -713,7 +933,7 @@ async function gradeTask(i){
     if (t.task===1 && t.q.hasImage && ctx.img && imagesOK) opts.images = [ctx.img];
     const data = await sample.json(buildPrompt(t), opts);
     if (!data || !Array.isArray(data.criteria) || data.criteria.length<4) throw {code:"invalid_json"};
-    const order = CRIT[t.task].map(c=>c.key);
+    const order = critOf(t).map(c=>c.key);
     data.criteria = order.map((k,ix)=>{ const f = data.criteria.find(c=>String(c.key).toUpperCase()===k) || data.criteria[ix] || {}; return {...f, key:k, band:Math.max(0,Math.min(9,Math.round(Number(f.band)||0)))}; });
     data.taskBand = roundBand(data.criteria.reduce((a,c)=>a+c.band,0)/4);
     slot.status="done"; slot.data=data;
@@ -734,14 +954,14 @@ function maybeSaveHistory(){
   const ctx = resultCtx; if (!ctx || ctx.fromHistory) return;
   if (!ctx.results.every(r=>r.status==="done")) return;
   const H = history();
-  const entry = {id:ctx.test.id, mode:ctx.test.mode, timed:ctx.test.timed, elapsed:ctx.test.elapsed, finishedAt:ctx.test.finishedAt, overall:overallOf(ctx.test, ctx.results),
-    tasks: ctx.test.tasks.map((t,i)=>({task:t.task, q:t.q, answer:t.answer, result:ctx.results[i].data}))};
+  const entry = {id:ctx.test.id, module:ctx.test.module||"academic", mode:ctx.test.mode, timed:ctx.test.timed, elapsed:ctx.test.elapsed, finishedAt:ctx.test.finishedAt, overall:overallOf(ctx.test, ctx.results),
+    tasks: ctx.test.tasks.map((t,i)=>({task:t.task, module:t.module, q:t.q, answer:t.answer, result:ctx.results[i].data}))};
   const ix = H.findIndex(h=>h.id===entry.id); if (ix>=0) H[ix]=entry; else H.unshift(entry);
   store.set("iwc.history", H.slice(0,60));
 }
 function openHistory(id){
   const h = history().find(x=>x.id===id); if (!h) return;
-  resultCtx = {fromHistory:true, test:{id:h.id, mode:h.mode, timed:h.timed, elapsed:h.elapsed, finishedAt:h.finishedAt, tasks:h.tasks.map(t=>({task:t.task,q:t.q,answer:t.answer}))}, results:h.tasks.map(t=>({status:"done", data:t.result}))};
+  resultCtx = {fromHistory:true, test:{id:h.id, module:h.module, mode:h.mode, timed:h.timed, elapsed:h.elapsed, finishedAt:h.finishedAt, tasks:h.tasks.map(t=>({task:t.task,module:t.module||h.module,q:t.q,answer:t.answer}))}, results:h.tasks.map(t=>({status:"done", data:t.result}))};
   nav("result");
 }
 function highlightEssay(text, corrections){
@@ -782,8 +1002,8 @@ function renderResult(){
 }
 function bandWord(b){ return b>=8.5?"Expert user":b>=7.5?"Very good user":b>=6.5?"Good user":b>=5.5?"Competent user":b>=4.5?"Modest user":b>=3.5?"Limited user":"Extremely limited user"; }
 function taskResultHTML(t, i, r){
-  const crit = CRIT[t.task], n = words(t.answer), tgt = rubric(t).target;
-  const head = `<div class="tr-head"><div style="min-width:0"><div class="eyebrow">Writing Task ${t.task}${t.q.type?" · "+(t.task===1?T1TYPES[t.q.type]:T2TYPES[t.q.type]):" · your question"}</div>
+  const crit = critOf(t), n = words(t.answer), tgt = rubric(t).target;
+  const head = `<div class="tr-head"><div style="min-width:0"><div class="eyebrow">Writing Task ${t.task}${typeLabel(t)?" · "+typeLabel(t):" · your question"}</div>
      <details class="q" style="margin-top:6px"><summary>${esc(t.q.prompt.split("\n")[0].slice(0,110))}${t.q.prompt.length>110?"…":""}</summary><div class="prompt" style="font-family:var(--f-serif);white-space:pre-wrap;margin-top:8px">${esc(t.q.prompt)}</div>${t.q.visual?`<div class="visual">${renderVisual(t.q.visual)}</div>`:""}</details></div>
      <div style="text-align:right"><div class="tr-band">${r.status==="done"?fmtBand(r.data.taskBand):"–"}</div><div class="wc ${n>=tgt?"okc":"short"}"><b>${n}</b> words${n<tgt?` · under ${tgt}`:""}</div></div></div>`;
   if (r.status==="pending") return `<section class="taskres"><div class="panel">${head}<div class="banner info"><span class="spinner"></span> The examiner is reading your answer against the Task ${t.task} descriptors. This usually takes 30–90 seconds.</div></div></section>`;
@@ -796,6 +1016,7 @@ function taskResultHTML(t, i, r){
        <p>${esc(c.summary)}</p>${Array.isArray(c.evidence)&&c.evidence.length?`<ul>${c.evidence.slice(0,4).map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:""}
        ${c.toNextBand && c.band<9?`<div class="next"><b>To reach band ${c.band+1}:</b> ${esc(c.toNextBand)}</div>`:""}
        <details><summary class="muted" style="font-size:12px;cursor:pointer">Band ${c.band} descriptor</summary><p class="muted" style="font-size:12px;margin-top:6px">${esc(crit[ci].d[c.band]||BAND0)}</p></details></div>`).join("")}</div>
+    ${structureResultHTML(t, d)}
     <div class="cols2">
       <div class="listbox"><h3>What worked</h3><ul>${(d.strengths||[]).map(s=>`<li>${esc(s)}</li>`).join("")||"<li class='muted'>None noted.</li>"}</ul></div>
       <div class="listbox"><h3>Fix these first</h3><ol>${(d.priorities||[]).map(s=>`<li>${esc(s)}</li>`).join("")||"<li class='muted'>None noted.</li>"}</ol></div>
@@ -807,13 +1028,22 @@ function taskResultHTML(t, i, r){
       <div id="model${i}" hidden style="margin-top:14px"><div class="eyebrow" style="margin-bottom:8px">Model answer</div><div class="model"></div></div></div>
   </div></section>`;
 }
+function structureResultHTML(t, d){
+  const bp = blueprint(t), st = d.structure, paras = paragraphs(t.answer);
+  const rows = bp.parts.map((p,pi)=>{ const g = (st?.parts||[]).find(x=>String(x.part).toLowerCase()===p.name.toLowerCase()) || st?.parts?.[pi] || {};
+    const status = ["yes","partial","no"].includes(g.status) ? g.status : null; const n = paras[pi] ? sentences(paras[pi]) : 0;
+    return `<div class="row" style="grid-template-columns:minmax(0,1fr)"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b style="font-size:14px">${esc(p.name)}</b>${status?`<span class="stat ${status}">${status==="yes"?"In place":status==="partial"?"Partly":"Missing"}</span>`:""}<span class="muted" style="font-size:12px;font-family:var(--f-mono)">${n?n+" sentence"+(n>1?"s":""):"no paragraph"} · aim ${esc(p.sent)}</span></div>${g.note?`<div class="why">${esc(g.note)}</div>`:""}</div>`; }).join("");
+  return `<div><div class="eyebrow" style="margin-bottom:8px">Structure check · ${esc(bp.label||"")} <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">(study advice; it does not change your band)</span></div>${st?.comment?`<p style="margin:0 0 10px;font-size:14px">${esc(st.comment)}</p>`:""}<div class="corr">${rows}</div></div>`;
+}
 async function modelAnswer(i){
   const ctx = resultCtx, t = ctx.test.tasks[i]; if (!sample) return;
   ctx.models = ctx.models || [];
   const box = $("#model"+i), out = box.querySelector(".model"), btn = app.querySelector(`[data-model="${i}"]`);
   box.hidden=false; out.textContent="Thinking…"; btn.disabled=true;
-  const prompt = `Write a band 9 model answer for this IELTS ${t.task===1?"Academic Writing Task 1":"Writing Task 2"} question, as a top candidate would write it under exam conditions.
-${t.task===1?"Length 170–200 words. Structure: introduction paraphrasing the question, a clear overview of the main features, then two body paragraphs with accurate, well-selected figures and comparisons. No opinions.":"Length 270–310 words. Structure: introduction with a clear position, two or three well-developed body paragraphs with examples, and a conclusion. Answer every part of the question."}
+  const prompt = `Write a band 9 model answer for this IELTS ${t.task===1?(isGT(t)?"General Training Writing Task 1 (letter)":"Academic Writing Task 1"):"Writing Task 2"} question, as a top candidate would write it under exam conditions.
+Follow this paragraph structure exactly:
+${blueprintText(t)}
+${t.task===1&&isGT(t)?"Length 170–200 words. Use the greeting given in the task, one paragraph per bullet point, a tone that fits the reader, and a matching sign-off with a name.":t.task===1?"Length 170–200 words. Structure: introduction paraphrasing the question, a clear overview of the main features, then two body paragraphs with accurate, well-selected figures and comparisons. No opinions.":"Length 270–310 words. Structure: introduction with a clear position, two or three well-developed body paragraphs with examples, and a conclusion. Answer every part of the question."}
 Question: ${t.q.prompt}
 ${t.q.visual?"Data:\n"+describeVisual(t.q.visual):t.q.desc?"Data:\n"+t.q.desc:""}
 
@@ -827,13 +1057,53 @@ Output the essay as plain text with blank lines between paragraphs. After the es
   btn.disabled=false; btn.textContent="Write another model answer";
 }
 
+/* ---------------- Structure guide ---------------- */
+const guideState = {task:"t1ac", t1:"line", t2:"opinion"};
+function renderGuide(){
+  const g = guideState, tabs = [["t1ac","Task 1 · Academic"],["t1gt","Task 1 · General Training"],["t2","Task 2 · Essays"]];
+  let body = "";
+  if (g.task==="t1ac"){
+    const tip = T1_TIPS[g.t1], parts = T1_PARTS(tip), sq = BANK1.find(q=>q.id===T1_SAMPLE.q);
+    body = `<div class="chips" style="margin-bottom:16px">${Object.entries(T1TYPES).map(([k,l])=>`<button type="button" data-gt1="${k}" aria-pressed="${g.t1===k}">${l}</button>`).join("")}</div>
+     <div class="guide-grid"><section class="panel"><div class="eyebrow">Structure · ${T1TYPES[g.t1]} · at least 150 words</div><h2 style="font-size:20px;margin:6px 0 14px">Intro 1 · Overview 2 · Body 3–4 · Body 3–4</h2>${blueprintHTML(parts)}
+       <div class="tips"><div><b>Approach for ${T1TYPES[g.t1].toLowerCase()}:</b> ${tip.approach==="Comparison"?"comparison: group similar data and compare, don't list every number.":"description: report stages or changes in a logical order, mostly in the passive voice."}</div><div><b>Useful language:</b> ${tip.phrases.map(esc).join(" · ")}</div></div></section>
+      <section class="panel"><div class="eyebrow">Worked example · line graph</div><p class="muted" style="font-size:13px;margin:6px 0 10px">${esc(sq.prompt)}</p>
+       <div class="sample-essay">${T1_SAMPLE.parts.map(([l,txt],ix)=>`<span class="lbl" style="color:var(--r-${["frame","op","a","b"][ix]})">${l}${ix===0?" · 1 sentence":ix===1?" · 2 sentences":" · "+sentences(txt)+" sentences"}</span><p>${esc(txt)}</p>`).join("")}</div>
+       <p class="muted" style="font-size:12px;margin-top:10px">${words(T1_SAMPLE.parts.map(x=>x[1]).join(" "))} words</p></section></div>
+     <section class="panel" style="margin-top:20px"><div class="eyebrow" style="margin-bottom:10px">Checklist</div>${checklistHTML(T1_CHECK,"g1c")}</section>`;
+  } else if (g.task==="t1gt"){
+    const sq = BANK1G.find(q=>q.id===LETTER_SAMPLE.q);
+    body = `<div class="guide-grid"><section class="panel"><div class="eyebrow">Letter structure · at least 150 words</div><h2 style="font-size:20px;margin:6px 0 14px">Greeting · Purpose · 3 bullet paragraphs · Closing</h2>${blueprintHTML(LETTER_PARTS(LETTER_TIPS.formal))}
+       <div class="tips">${Object.entries(LETTER_TIPS).map(([k,v])=>`<div><b>${GT_TYPES[k]}:</b> ${esc(v.greet)} → ${esc(v.close)} ${esc(v.tone)}</div>`).join("")}</div></section>
+      <section class="panel"><div class="eyebrow">Worked example · formal letter</div><p class="muted" style="font-size:13px;margin:6px 0 10px;white-space:pre-wrap">${esc(sq.prompt)}</p>
+       <div class="sample-essay">${LETTER_SAMPLE.parts.map(([l,txt],ix)=>`<span class="lbl" style="color:var(--r-${["frame","op","a","b","a","frame"][ix]})">${l}</span><p style="white-space:pre-wrap">${esc(txt)}</p>`).join("")}</div>
+       <p class="muted" style="font-size:12px;margin-top:10px">${words(LETTER_SAMPLE.parts.map(x=>x[1]).join(" "))} words</p></section></div>
+     <section class="panel" style="margin-top:20px"><div class="eyebrow" style="margin-bottom:10px">Checklist</div>${checklistHTML(LETTER_CHECK,"gtc")}</section>`;
+  } else {
+    const st = T2_STRUCT[g.t2], ex = BANK2.find(q=>q.id===st.example.q);
+    body = `<div class="chips" style="margin-bottom:16px">${Object.entries(T2_STRUCT).map(([k,v])=>`<button type="button" data-gt2="${k}" aria-pressed="${g.t2===k}">${v.label}</button>`).join("")}</div>
+     <section class="panel" style="margin-bottom:20px"><div class="eyebrow" style="margin-bottom:8px">Process · plan, draft, conclude, then check</div><ul class="flow">${[...st.flow,...T2_FLOW_END,"Move on"].map(f=>`<li>${esc(f)}</li>`).join("")}</ul></section>
+     <div class="guide-grid"><section class="panel"><div class="eyebrow">Blank structure · at least 250 words</div><h2 style="font-size:20px;margin:6px 0 14px">${esc(st.label)}: Introduction · Body 1 · Body 2 · Conclusion</h2>${blueprintHTML(st.parts)}${st.note?`<div class="tips"><div>${esc(st.note)}</div></div>`:""}</section>
+      <section class="panel"><div class="eyebrow">Populated structure · example plan</div><p class="muted" style="font-size:13px;margin:6px 0 12px;white-space:pre-wrap">${esc(ex.prompt)}</p>${blueprintHTML(st.parts, st.example.notes)}</section></div>
+     <section class="panel" style="margin-top:20px"><div class="eyebrow" style="margin-bottom:10px">Checklist</div>${checklistHTML([...st.check,...T2_COMMON_CHECK],"g2c")}</section>`;
+  }
+  app.innerHTML = `<main class="wrap"><div class="eyebrow">Study</div><h1 style="font-size:28px;margin-top:4px">Structure guide</h1>
+   <p class="muted" style="max-width:72ch">A paragraph-by-paragraph plan for every task type. Colours show each sentence's job: <span style="color:var(--r-frame);font-weight:600">frame</span>, <span style="color:var(--r-op);font-weight:600">overview / opinion</span>, <span style="color:var(--r-a);font-weight:600">main idea 1</span>, <span style="color:var(--r-b);font-weight:600">main idea 2</span>, <span style="color:var(--r-x);font-weight:600">support</span>. Task 2 structures follow the Writing Structures Guide you uploaded. They are templates, not formulas: use your own ideas and language.</p>
+   <div class="tasktabs" style="margin:18px 0 18px;justify-content:flex-start">${tabs.map(([k,l])=>`<button data-gtab="${k}" aria-current="${g.task===k}">${l}</button>`).join("")}</div>${body}
+   <div class="startrow" style="margin-top:20px"><button class="btn primary" id="gpractise">Practise this type</button></div></main>`;
+  app.querySelectorAll("[data-gtab]").forEach(b=>b.onclick=()=>{ g.task=b.dataset.gtab; renderGuide(); });
+  app.querySelectorAll("[data-gt1]").forEach(b=>b.onclick=()=>{ g.t1=b.dataset.gt1; renderGuide(); });
+  app.querySelectorAll("[data-gt2]").forEach(b=>b.onclick=()=>{ g.t2=b.dataset.gt2; renderGuide(); });
+  $("#gpractise").onclick=()=>{ setup.source="random"; if (g.task==="t2"){ setup.mode="t2"; setup.t2type=g.t2; } else { setup.mode="t1"; setup.module = g.task==="t1gt"?"general":"academic"; if (g.task==="t1ac") setup.t1type=g.t1; else setup.t1typeGT="any"; } saveSetup(); nav("home"); };
+}
+
 /* ---------------- History & descriptors ---------------- */
 function renderHistory(){
   const H = history();
   app.innerHTML = `<main class="wrap"><div class="eyebrow">History</div><h1 style="font-size:28px;margin-top:4px">Your marked tests</h1>
    <div class="home" style="margin-top:18px"><section class="panel">${H.length?`<div class="hist-list" style="margin-top:0">${H.map(histRow).join("")}</div>`:`<div class="empty" style="margin-top:0">No marked tests yet. Finish a test and submit it for marking to see it here.</div>`}
    ${H.length?`<button class="btn small" id="clr" style="margin-top:14px">Clear history</button><span id="clrc"></span>`:""}</section>
-   <aside class="panel"><div class="eyebrow">Criterion averages</div>${progressHTML([]).length&&H.length?progressHTML(H).split('<div class="hist-list">')[0]:progressHTML(H)}</aside></div>
+   <aside class="panel"><div class="eyebrow">Criterion averages</div>${H.length?progressHTML(H).split('<div class="hist-list">')[0]:progressHTML(H)}</aside></div>
    <p class="foot">History is kept in this browser only. Clearing site data or using another device starts a fresh history.</p></main>`;
   app.querySelectorAll(".hist").forEach(b=>b.addEventListener("click",()=>openHistory(b.dataset.id)));
   const c=$("#clr"); c && c.addEventListener("click",()=>{ $("#clrc").innerHTML=` <span style="font-size:13px">Delete all ${H.length} results? <button class="btn small" id="clry" style="border-color:var(--mark);color:var(--mark)">Delete</button></span>`; $("#clry").onclick=()=>{ store.del("iwc.history"); renderHistory(); }; });
@@ -841,8 +1111,11 @@ function renderHistory(){
 function renderDesc(){
   const tbl = task => `<div class="desc-tbl"><table><thead><tr><th>Band</th>${CRIT[task].map(c=>`<th>${c.name}</th>`).join("")}</tr></thead><tbody>${[9,8,7,6,5,4,3,2,1].map(b=>`<tr><td class="b">${b}</td>${CRIT[task].map(c=>`<td>${esc(c.d[b])}</td>`).join("")}</tr>`).join("")}<tr><td class="b">0</td><td colspan="4">${esc(BAND0)}</td></tr></tbody></table></div>`;
   app.innerHTML = `<main class="wrap"><div class="eyebrow">Reference</div><h1 style="font-size:28px;margin-top:4px">Writing band descriptors</h1>
-   <p class="muted" style="max-width:70ch">The examiner uses these exact descriptors (IELTS Writing Band Descriptors, updated May 2023; Academic wording for Task 1). A script must fully fit the positive features of a band to be awarded it.</p>
-   <h2 style="font-size:20px;margin-top:24px">Task 1</h2>${tbl(1)}<h2 style="font-size:20px;margin-top:28px">Task 2</h2>${tbl(2)}</main>`;
+   <p class="muted" style="max-width:70ch">The examiner uses these exact descriptors (IELTS Writing Band Descriptors, updated May 2023) together with the official Writing Key Assessment Criteria. A script must fully fit the positive features of a band to be awarded it.</p>
+   <h2 style="font-size:20px;margin-top:24px">What each criterion assesses</h2>
+   <div class="cols2" style="margin-top:12px">${[["Task Achievement · Academic Task 1",KEY_CRITERIA.TA_ac],["Task Achievement · General Training Task 1",KEY_CRITERIA.TA_gt],["Task Response · Task 2",KEY_CRITERIA.TR],["Coherence & Cohesion",KEY_CRITERIA.CC],["Lexical Resource",KEY_CRITERIA.LR],["Grammatical Range & Accuracy",KEY_CRITERIA.GRA]].map(([h,x])=>`<div class="listbox"><h3>${h}</h3><p style="margin:0;font-size:14px">${esc(x)}</p></div>`).join("")}</div>
+   <div class="banner warn" style="margin-top:12px">${esc(KEY_CRITERIA.general)}</div>
+   <h2 style="font-size:20px;margin-top:28px">Task 1 · Academic</h2>${tbl(1)}<h2 style="font-size:20px;margin-top:28px">Task 1 · General Training</h2>${tbl("g1")}<h2 style="font-size:20px;margin-top:28px">Task 2</h2>${tbl(2)}</main>`;
 }
 
 nav(current && !current.submitted ? "home" : "home");
