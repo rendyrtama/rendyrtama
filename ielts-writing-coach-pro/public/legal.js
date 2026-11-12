@@ -5,10 +5,10 @@ import { PACKAGES, FREE_TESTS, rupiah, esc } from "./core.js";
 export const COMPANY = {
   legalName: "PT Nara Tama Jaya",
   brand: "Writing Coach",
-  address: "",                                 // e.g. "Jl. Contoh No. 1, Kel. ..., Kec. ..., Tulungagung 66xxx"
+  address: "Jl. Tegojuran",
   city: "Tulungagung, Jawa Timur, Indonesia",
-  email: "",                                   // e.g. "support@yourdomain.com"
-  whatsapp: "",                                // e.g. "+62 812-3456-7890"
+  email: "naratamajaya11@gmail.com",
+  whatsapp: "+62 812-3355-4732",
   hours: "Senin–Jumat, 09.00–17.00 WIB",
   hoursEn: "Monday–Friday, 09:00–17:00 WIB (UTC+7)",
   updated: "12 November 2026",
@@ -21,7 +21,7 @@ const contactLines = (en) => [
   COMPANY.address && esc(COMPANY.address),
   esc(COMPANY.city),
   COMPANY.email && `${en ? "Email" : "Email"}: <a href="mailto:${esc(COMPANY.email)}">${esc(COMPANY.email)}</a>`,
-  COMPANY.whatsapp && `WhatsApp: ${esc(COMPANY.whatsapp)}`,
+  COMPANY.whatsapp && `WhatsApp: <a href="https://wa.me/${COMPANY.whatsapp.replace(/\D/g, "")}" target="_blank" rel="noopener noreferrer">${esc(COMPANY.whatsapp)}</a>`,
   `${en ? "Support hours" : "Jam layanan"}: ${esc(en ? COMPANY.hoursEn : COMPANY.hours)}`,
 ].filter(Boolean).join("<br>");
 const reach = (en) => {
