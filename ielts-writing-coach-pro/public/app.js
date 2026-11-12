@@ -7,6 +7,7 @@ import {
   esc, words, roundBand, fmtBand, pick, store, fmtTime, fmtDate, LIMITS,
   renderVisual, describeVisual, rubric, FREE_TESTS, PACKAGES, rupiah
 } from "./core.js";
+import { legalHTML, footerHTML, LEGAL_PAGES } from "./legal.js";
 
 /* ---------------- State ---------------- */
 const $ = (s, r=document) => r.querySelector(s);
@@ -81,6 +82,8 @@ function nav(to){
   if (tick && to!=="test"){ clearInterval(tick); tick=null; }
   window.scrollTo(0,0);
   if (to==="home") renderHome(); else if (to==="guide") renderGuide(); else if (to==="buy") renderBuy(); else if (to==="history") renderHistory(); else if (to==="desc") renderDesc(); else if (to==="test") renderTest(); else if (to==="result") renderResult();
+  else if (to in LEGAL_PAGES){ app.innerHTML = legalHTML(to); if (location.hash !== "#"+to) window.history.replaceState(null, "", "#"+to); return; }
+  if (location.hash && location.hash.slice(1) in LEGAL_PAGES) window.history.replaceState(null, "", location.pathname);
 }
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{ if (view==="test" && !confirmLeave()) return; nav(b.dataset.nav); }));
 function confirmLeave(){ return true; } // drafts are autosaved; the test can be resumed from Practice
@@ -451,7 +454,9 @@ function renderDesc(){
    <h2 style="font-size:20px;margin-top:28px">Task 1 · Academic</h2>${tbl(1)}<h2 style="font-size:20px;margin-top:28px">Task 1 · General Training</h2>${tbl("g1")}<h2 style="font-size:20px;margin-top:28px">Task 2</h2>${tbl(2)}</main>`;
 }
 
-nav("home");
+{ const f = document.getElementById("sitefoot"); if (f) f.innerHTML = footerHTML(); }
+window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (h in LEGAL_PAGES) nav(h); });
+nav(location.hash.slice(1) in LEGAL_PAGES ? location.hash.slice(1) : "home");
 boot();
 /* ---------------- Buy credits ---------------- */
 let paypalLoading = null, pollTimer = null, countdownTimer = null;
