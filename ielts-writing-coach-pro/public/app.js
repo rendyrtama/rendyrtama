@@ -156,7 +156,7 @@ function progressHTML(H){
 }
 function histRow(h){
   const label = (h.module==="general"?"GT · ":"") + h.tasks.map(t=>typeLabel(t)?typeLabel(t).split(" (")[0]:`Task ${t.task} (own)`).join(" + ");
-  return `<button class="hist" data-id="${h.id}"><span class="t">${esc(label)}</span><span class="bandchip">${fmtBand(h.overall)}</span><span class="d">${fmtDate(h.finishedAt)} · ${h.tasks.map(t=>`T${t.task} ${fmtBand(t.result?.taskBand)}`).join(" · ")}</span></button>`;
+  return `<button class="hist" data-id="${h.id}"><span class="t">${esc(label)}</span>${h.tasks.some(t=>!t.result)?`<span class="bandchip unmarked">Not marked</span>`:`<span class="bandchip">${fmtBand(h.overall)}</span>`}<span class="d">${fmtDate(h.finishedAt)} · ${h.tasks.map(t=>`T${t.task} ${fmtBand(t.result?.taskBand)}`).join(" · ")}</span></button>`;
 }
 
 /* ---------------- Test ---------------- */
@@ -295,17 +295,19 @@ function overallOf(test, results){
   return roundBand((t1 + 2*t2)/3);
 }
 function maybeSaveHistory(){
-  const ctx = resultCtx; if (!ctx || ctx.fromHistory) return;
-  if (!ctx.results.every(r=>r.status==="done")) return;
+  // Save as soon as no task is still being marked, including tasks whose marking failed,
+  // so the user can reopen the test from History and press "Try again" later.
+  const ctx = resultCtx; if (!ctx) return;
+  if (ctx.results.some(r=>r.status==="pending")) return;
   const H = history();
   const entry = {id:ctx.test.id, testId:ctx.test.testId, module:ctx.test.module||"academic", mode:ctx.test.mode, timed:ctx.test.timed, elapsed:ctx.test.elapsed, finishedAt:ctx.test.finishedAt, overall:overallOf(ctx.test, ctx.results),
-    tasks: ctx.test.tasks.map((t,i)=>({task:t.task, module:t.module, q:t.q, answer:t.answer, result:ctx.results[i].data}))};
+    tasks: ctx.test.tasks.map((t,i)=>({task:t.task, module:t.module, q:t.q, answer:t.answer, result:ctx.results[i].status==="done" ? ctx.results[i].data : null, model:(ctx.models||[])[i]?.text}))};
   const ix = H.findIndex(h=>h.id===entry.id); if (ix>=0) H[ix]=entry; else H.unshift(entry);
   store.set("iwc.history", H.slice(0,60));
 }
 function openHistory(id){
   const h = history().find(x=>x.id===id); if (!h) return;
-  resultCtx = {fromHistory:true, test:{id:h.id, testId:h.testId, module:h.module, mode:h.mode, timed:h.timed, elapsed:h.elapsed, finishedAt:h.finishedAt, tasks:h.tasks.map(t=>({task:t.task,module:t.module||h.module,q:t.q,answer:t.answer}))}, results:h.tasks.map(t=>({status:"done", data:t.result})), models:h.tasks.map(t=>t.model?{text:t.model}:null)};
+  resultCtx = {fromHistory:true, test:{id:h.id, testId:h.testId, module:h.module, mode:h.mode, timed:h.timed, elapsed:h.elapsed, finishedAt:h.finishedAt, tasks:h.tasks.map(t=>({task:t.task,module:t.module||h.module,q:t.q,answer:t.answer}))}, results:h.tasks.map(t=>t.result ? {status:"done", data:t.result} : {status:"error", error:"This task hasn't been marked yet. Press Try again to mark it (no extra charge)."}), models:h.tasks.map(t=>t.model?{text:t.model}:null)};
   nav("result");
 }
 function highlightEssay(text, corrections){
