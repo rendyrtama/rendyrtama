@@ -122,7 +122,7 @@ const PAGES = {
 export function legalHTML(page) {
   const p = PAGES[page];
   return `<main class="wrap legal"><div class="eyebrow">${esc(COMPANY.brand)} · ${esc(COMPANY.legalName)}</div>
-    <nav class="legal-tabs" aria-label="Legal pages">${Object.entries(LEGAL_PAGES).map(([k, l]) => `<a href="#${k}" ${k === page ? 'aria-current="page"' : ""}>${l}</a>`).join("")}</nav>
+    <nav class="legal-tabs" aria-label="Legal pages">${Object.entries(LEGAL_PAGES).map(([k, l]) => `<a href="/${k}" data-legal="${k}" ${k === page ? 'aria-current="page"' : ""}>${l}</a>`).join("")}</nav>
     <article lang="id">${p.id}</article>
     <article lang="en" class="en"><div class="eyebrow">English</div>${p.en}</article>
     <p class="muted" style="font-size:13px">Terakhir diperbarui / Last updated: ${esc(COMPANY.updated)}</p></main>`;
@@ -130,5 +130,5 @@ export function legalHTML(page) {
 
 export function footerHTML() {
   return `<div class="wrap"><span>© 2026 ${esc(COMPANY.legalName)} · ${esc(COMPANY.city)}</span>
-    <nav aria-label="Footer">${Object.entries(LEGAL_PAGES).map(([k, l]) => `<a href="#${k}">${l}</a>`).join("")}</nav></div>`;
+    <nav aria-label="Footer">${Object.entries(LEGAL_PAGES).map(([k, l]) => `<a href="/${k}" data-legal="${k}">${l}</a>`).join("")}</nav></div>`;
 }

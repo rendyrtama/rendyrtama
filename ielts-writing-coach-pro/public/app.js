@@ -82,8 +82,8 @@ function nav(to){
   if (tick && to!=="test"){ clearInterval(tick); tick=null; }
   window.scrollTo(0,0);
   if (to==="home") renderHome(); else if (to==="guide") renderGuide(); else if (to==="buy") renderBuy(); else if (to==="history") renderHistory(); else if (to==="desc") renderDesc(); else if (to==="test") renderTest(); else if (to==="result") renderResult();
-  else if (to in LEGAL_PAGES){ app.innerHTML = legalHTML(to); if (location.hash !== "#"+to) window.history.replaceState(null, "", "#"+to); return; }
-  if (location.hash && location.hash.slice(1) in LEGAL_PAGES) window.history.replaceState(null, "", location.pathname);
+  else if (to in LEGAL_PAGES){ app.innerHTML = legalHTML(to); if (location.pathname !== "/"+to) window.history.replaceState(null, "", "/"+to); return; }
+  if ((location.hash && location.hash.slice(1) in LEGAL_PAGES) || location.pathname.replace(/^\/+|\/+$/g, "") in LEGAL_PAGES) window.history.replaceState(null, "", "/");
 }
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{ if (view==="test" && !confirmLeave()) return; nav(b.dataset.nav); }));
 function confirmLeave(){ return true; } // drafts are autosaved; the test can be resumed from Practice
@@ -456,8 +456,10 @@ function renderDesc(){
 }
 
 { const f = document.getElementById("sitefoot"); if (f) f.innerHTML = footerHTML(); }
-window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (h in LEGAL_PAGES) nav(h); });
-nav(location.hash.slice(1) in LEGAL_PAGES ? location.hash.slice(1) : "home");
+document.addEventListener("click", e => { const a = e.target.closest("a[data-legal]"); if (a && !e.ctrlKey && !e.metaKey){ e.preventDefault(); nav(a.dataset.legal); } });
+function routeFromUrl(){ const p = location.pathname.replace(/^\/+|\/+$/g, ""), h = location.hash.slice(1); return h in LEGAL_PAGES ? h : p in LEGAL_PAGES ? p : null; }
+window.addEventListener("popstate", () => { const r = routeFromUrl(); if (r) nav(r); else if (view in LEGAL_PAGES) nav("home"); });
+nav(routeFromUrl() || "home");
 boot();
 /* ---------------- Buy credits ---------------- */
 let paypalLoading = null, pollTimer = null, countdownTimer = null;
