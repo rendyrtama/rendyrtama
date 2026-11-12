@@ -1,0 +1,850 @@
+<title>IELTS Writing Coach</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* Layout: exam desk — a question paper on the left, a ruled answer sheet on the right, timer bar on top. */
+:root{
+  --paper:#eef1f5; --sheet:#ffffff; --ink:#18202e; --muted:#5a6476; --line:#d6dce6; --rule:#e3e8f0;
+  --accent:#1f45b0; --accent-ink:#ffffff; --accent-soft:#e4eafa;
+  --mark:#b42318; --mark-soft:#fde8e5; --ok:#17734a; --ok-soft:#e1f3ea; --warn:#a65300; --warn-soft:#fdf0dc;
+  --c1:#1f45b0; --c2:#d0632a; --c3:#17865a; --c4:#8a4fbf; --c5:#c2a110; --c6:#6b7486;
+  --road:#c9ced8; --water:#a9cdf0; --trees:#7cb88a; --field:#d6e9c2; --bld:#e7d3b5; --sand:#f1e2b0;
+  --f-display:"Archivo",system-ui,sans-serif; --f-body:"IBM Plex Sans",system-ui,sans-serif;
+  --f-serif:"Source Serif 4",Georgia,serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0f131a; --sheet:#171d27; --ink:#e6e9ef; --muted:#9aa3b4; --line:#2a3240; --rule:#222a36;
+  --accent:#8eaaff; --accent-ink:#0d1220; --accent-soft:#1d2744;
+  --mark:#ff8a7a; --mark-soft:#3a1f1d; --ok:#5fd19a; --ok-soft:#14301f; --warn:#f2b35c; --warn-soft:#33260f;
+  --c1:#8eaaff; --c2:#f08a52; --c3:#4fc98e; --c4:#c39af0; --c5:#e7c84a; --c6:#9aa3b4;
+  --road:#3b4352; --water:#2b4f73; --trees:#2f6b45; --field:#2c3b28; --bld:#5a4a35; --sand:#5c5230; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f131a; --sheet:#171d27; --ink:#e6e9ef; --muted:#9aa3b4; --line:#2a3240; --rule:#222a36;
+  --accent:#8eaaff; --accent-ink:#0d1220; --accent-soft:#1d2744;
+  --mark:#ff8a7a; --mark-soft:#3a1f1d; --ok:#5fd19a; --ok-soft:#14301f; --warn:#f2b35c; --warn-soft:#33260f;
+  --c1:#8eaaff; --c2:#f08a52; --c3:#4fc98e; --c4:#c39af0; --c5:#e7c84a; --c6:#9aa3b4;
+  --road:#3b4352; --water:#2b4f73; --trees:#2f6b45; --field:#2c3b28; --bld:#5a4a35; --sand:#5c5230; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sheet)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--sheet);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:16px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brand b{font-family:var(--f-display);font-weight:800;font-size:18px;letter-spacing:-.01em}
+.brand span{font-size:12px;color:var(--muted)}
+nav.tabs{display:flex;gap:4px}
+nav.tabs button{background:none;border:0;padding:6px 10px;border-radius:6px;color:var(--muted);cursor:pointer;font-weight:500}
+nav.tabs button[aria-current="true"]{color:var(--ink);background:var(--paper)}
+main{padding-block:24px 64px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--sheet);padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:20px}
+/* Home */
+.home{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.home{grid-template-columns:minmax(0,1fr)}}
+.hero h1{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-.02em}
+.hero p{max-width:60ch;color:var(--muted);margin:8px 0 0}
+.setup{display:grid;gap:20px;margin-top:20px}
+.field{display:grid;gap:8px}
+.field>label,.field>.lbl{font-weight:600;font-size:14px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1px solid var(--line);background:var(--sheet);padding:8px 12px;border-radius:8px;cursor:pointer;text-align:left;min-width:0}
+.seg button small{display:block;color:var(--muted);font-size:12px;font-family:var(--f-mono)}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--sheet);padding:5px 11px;border-radius:999px;cursor:pointer;font-size:13px}
+.chips button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);font-weight:600}
+textarea.input,input.input,select.input{width:100%;border:1px solid var(--line);background:var(--sheet);border-radius:8px;padding:10px 12px}
+textarea.input{min-height:120px;resize:vertical}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.drop img{max-height:90px;border-radius:6px;border:1px solid var(--line)}
+.startrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.banner{border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:14px}
+.banner.info{background:var(--accent-soft)}
+.banner.warn{background:var(--warn-soft);color:var(--ink)}
+.banner.bad{background:var(--mark-soft)}
+.side{display:grid;gap:16px}
+.hist-list{display:grid;gap:8px;margin-top:12px}
+.hist{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--sheet);cursor:pointer;text-align:left;width:100%}
+.hist:hover{border-color:var(--muted)}
+.hist .t{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist .d{font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.bandchip{font-family:var(--f-mono);font-weight:600;font-size:14px;padding:3px 9px;border-radius:6px;background:var(--accent-soft);color:var(--accent);grid-row:span 2;font-variant-numeric:tabular-nums}
+.critavg{display:grid;gap:8px;margin-top:12px}
+.critavg .row{display:grid;grid-template-columns:150px minmax(0,1fr) 36px;gap:10px;align-items:center;font-size:13px}
+.meter{height:8px;border-radius:4px;background:var(--rule);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.empty{padding:18px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:14px;margin-top:12px}
+ol.steps{margin:10px 0 0;padding-left:20px;display:grid;gap:6px;font-size:14px}
+/* Test */
+.testbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + 57px);z-index:4;background:var(--paper);padding-block:10px;border-bottom:1px solid var(--line)}
+.testbar .wrap{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.timer{font-family:var(--f-mono);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;padding:2px 12px;border-radius:8px;background:var(--sheet);border:1px solid var(--line)}
+.timer.low{color:var(--warn);border-color:var(--warn)}
+.timer.out{color:var(--mark);border-color:var(--mark)}
+.timer-sub{font-size:12px;color:var(--muted)}
+.tasktabs{display:flex;gap:4px;margin-left:auto}
+.tasktabs button{border:1px solid var(--line);background:var(--sheet);padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px}
+.tasktabs button[aria-current="true"]{background:var(--ink);color:var(--sheet);border-color:var(--ink)}
+.tasktabs button small{font-family:var(--f-mono);font-weight:400;opacity:.8}
+.desk{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px;align-items:start}
+@media (max-width:960px){.desk{grid-template-columns:minmax(0,1fr)}}
+.qpaper{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:22px;min-width:0}
+.qpaper .rubric{font-size:14px;color:var(--muted);margin:10px 0}
+.qpaper .prompt{font-family:var(--f-serif);font-size:17px;line-height:1.55;border-left:3px solid var(--ink);padding:4px 0 4px 14px;margin:14px 0;white-space:pre-wrap}
+.qpaper .req{font-size:14px;font-weight:600}
+.visual{margin-top:16px;overflow-x:auto}
+.visual svg{display:block;max-width:100%;height:auto}
+.visual .vt{font-family:var(--f-display);font-weight:600;font-size:14px;margin:12px 0 6px;text-align:center}
+.visual .note{font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
+.vgrid{display:flex;flex-wrap:wrap;gap:18px;justify-content:center}
+.vgrid>div{flex:1 1 280px;min-width:0}
+table.data{border-collapse:collapse;font-size:14px;margin:0 auto;font-variant-numeric:tabular-nums}
+table.data th,table.data td{border:1px solid var(--line);padding:6px 10px;text-align:right}
+table.data th{background:var(--paper);font-weight:600;text-align:center}
+table.data td:first-child,table.data th:first-child{text-align:left}
+svg text{fill:var(--ink);font-family:var(--f-body)}
+svg .ax{stroke:var(--muted);stroke-width:1}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .lab{fill:var(--muted);font-size:11px}
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;min-width:0}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.wc{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums}
+.wc b{font-size:15px}
+.wc.short b{color:var(--warn)} .wc.okc b{color:var(--ok)}
+textarea.answer{border:0;outline:0;resize:vertical;min-height:62vh;padding:6px 18px 18px 48px;font-family:var(--f-serif);font-size:17px;line-height:32px;background-color:var(--sheet);
+  background-image:linear-gradient(90deg,transparent 36px,var(--mark-soft) 36px,var(--mark-soft) 38px,transparent 38px),repeating-linear-gradient(var(--sheet) 0 31px,var(--rule) 31px 32px);background-attachment:local;background-position:0 6px;border-radius:0 0 12px 12px}
+textarea.answer[readonly]{opacity:.75}
+/* Result */
+.res-head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:center}
+@media (max-width:640px){.res-head{grid-template-columns:minmax(0,1fr)}}
+.bigband{font-family:var(--f-display);font-weight:800;font-size:72px;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.bigband small{display:block;font-family:var(--f-body);font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.taskres{margin-top:24px}
+.taskres>.panel{display:grid;gap:20px}
+.tr-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.tr-band{font-family:var(--f-mono);font-size:30px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+.crit{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.crit{grid-template-columns:minmax(0,1fr)}}
+.crit .c{border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:8px;align-content:start;min-width:0}
+.crit .c-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.crit .c-top h3{font-size:15px}
+.crit .c-top b{font-family:var(--f-mono);font-size:20px;font-variant-numeric:tabular-nums}
+.ticks{display:grid;grid-template-columns:repeat(9,1fr);gap:2px}
+.ticks i{height:6px;border-radius:2px;background:var(--rule)}
+.ticks i.on{background:var(--accent)}
+.c p{margin:0;font-size:14px}
+.c .next{font-size:13px;background:var(--ok-soft);border-radius:6px;padding:8px 10px}
+.c ul{margin:0;padding-left:18px;font-size:13px;color:var(--muted)}
+.cols2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.cols2{grid-template-columns:minmax(0,1fr)}}
+.listbox{border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.listbox h3{font-size:14px;margin-bottom:8px}
+.listbox ul,.listbox ol{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px}
+.essay{font-family:var(--f-serif);font-size:16px;line-height:1.7;white-space:pre-wrap;border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--paper);overflow-wrap:anywhere}
+mark.err{background:var(--mark-soft);color:inherit;border-bottom:2px solid var(--mark);padding:0 1px;cursor:help}
+.corr{display:grid;gap:10px}
+.corr .row{display:grid;gap:4px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;min-width:0}
+.corr .from{text-decoration:line-through;text-decoration-color:var(--mark);color:var(--muted);font-family:var(--f-serif)}
+.corr .to{color:var(--ok);font-family:var(--f-serif);font-weight:600}
+.corr .why{font-size:13px;color:var(--muted)}
+.tag{display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;border-radius:4px;background:var(--paper);color:var(--muted);font-weight:600;margin-right:6px}
+.model{white-space:pre-wrap;font-family:var(--f-serif);font-size:16px;line-height:1.7;border-left:3px solid var(--ok);padding:4px 0 4px 16px}
+details.q summary{cursor:pointer;font-weight:600;font-size:14px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spinner{animation:none}}
+/* Descriptors */
+.desc-tbl{overflow-x:auto;margin-top:14px}
+.desc-tbl table{border-collapse:collapse;min-width:880px;font-size:13px;background:var(--sheet)}
+.desc-tbl th,.desc-tbl td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+.desc-tbl th{background:var(--paper);font-family:var(--f-display)}
+.desc-tbl td.b{font-family:var(--f-mono);font-weight:600;font-size:16px;text-align:center;width:52px}
+.foot{font-size:12px;color:var(--muted);margin-top:28px;max-width:80ch}
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="brand"><b>IELTS Writing Coach</b><span>Academic practice · marked against the May 2023 band descriptors</span></div>
+  <nav class="tabs" aria-label="Sections">
+    <button id="nav-home" data-nav="home" aria-current="true">Practice</button>
+    <button id="nav-history" data-nav="history">History</button>
+    <button id="nav-desc" data-nav="desc">Band descriptors</button>
+  </nav>
+</div></header>
+<div id="app"></div>
+
+<script>
+(() => {
+"use strict";
+/* ---------------- Band descriptors (from the official IELTS Writing Band Descriptors, updated May 2023) ---------------- */
+const LR = {
+9:"Full flexibility and precise use are widely evident. A wide range of vocabulary is used accurately and appropriately with very natural and sophisticated control of lexical features. Minor errors in spelling and word formation are extremely rare and have minimal impact on communication.",
+8:"A wide resource is fluently and flexibly used to convey precise meanings. There is skilful use of uncommon and/or idiomatic items when appropriate, despite occasional inaccuracies in word choice and collocation. Occasional errors in spelling and/or word formation may occur, but have minimal impact on communication.",
+7:"The resource is sufficient to allow some flexibility and precision. There is some ability to use less common and/or idiomatic items. An awareness of style and collocation is evident, though inappropriacies occur. There are only a few errors in spelling and/or word formation and they do not detract from overall clarity.",
+6:"The resource is generally adequate and appropriate for the task. The meaning is generally clear in spite of a rather restricted range or a lack of precision in word choice. If the writer is a risk-taker, there will be a wider range of vocabulary used but higher degrees of inaccuracy or inappropriacy. There are some errors in spelling and/or word formation, but these do not impede communication.",
+5:"The resource is limited but minimally adequate for the task. Simple vocabulary may be used accurately but the range does not permit much variation in expression. There may be frequent lapses in the appropriacy of word choice, and a lack of flexibility is apparent in frequent simplifications and/or repetitions. Errors in spelling and/or word formation may be noticeable and may cause some difficulty for the reader.",
+4:"The resource is limited and inadequate for or unrelated to the task. Vocabulary is basic and may be used repetitively. There may be inappropriate use of lexical chunks (e.g. memorised phrases, formulaic language and/or language from the input material). Inappropriate word choice and/or errors in word formation and/or in spelling may impede meaning.",
+3:"The resource is inadequate (which may be due to the response being significantly underlength). Possible over-dependence on input material or memorised language. Control of word choice and/or spelling is very limited, and errors predominate. These errors may severely impede meaning.",
+2:"The resource is extremely limited with few recognisable strings, apart from memorised phrases. There is no apparent control of word formation and/or spelling.",
+1:"No resource is apparent, except for a few isolated words. Responses of 20 words or fewer are rated at Band 1."};
+const GRA = {
+9:"A wide range of structures is used with full flexibility and control. Punctuation and grammar are used appropriately throughout. Minor errors are extremely rare and have minimal impact on communication.",
+8:"A wide range of structures is flexibly and accurately used. The majority of sentences are error-free, and punctuation is well managed. Occasional, non-systematic errors and inappropriacies occur, but have minimal impact on communication.",
+7:"A variety of complex structures is used with some flexibility and accuracy. Grammar and punctuation are generally well controlled, and error-free sentences are frequent. A few errors in grammar may persist, but these do not impede communication.",
+6:"A mix of simple and complex sentence forms is used but flexibility is limited. Examples of more complex structures are not marked by the same level of accuracy as in simple structures. Errors in grammar and punctuation occur, but rarely impede communication.",
+5:"The range of structures is limited and rather repetitive. Although complex sentences are attempted, they tend to be faulty, and the greatest accuracy is achieved on simple sentences. Grammatical errors may be frequent and cause some difficulty for the reader. Punctuation may be faulty.",
+4:"A very limited range of structures is used. Subordinate clauses are rare and simple sentences predominate. Some structures are produced accurately but grammatical errors are frequent and may impede meaning. Punctuation is often faulty or inadequate.",
+3:"Sentence forms are attempted, but errors in grammar and punctuation predominate (except in memorised phrases or those taken from the input material). This prevents most meaning from coming through. Length may be insufficient to provide evidence of control of sentence forms.",
+2:"There is little or no evidence of sentence forms (except in memorised phrases).",
+1:"No rateable language is evident. Responses of 20 words or fewer are rated at Band 1."};
+const CC_BASE = {
+9:"The message can be followed effortlessly. Cohesion is used in such a way that it very rarely attracts attention. Any lapses in coherence or cohesion are minimal. Paragraphing is skilfully managed.",
+8:"The message can be followed with ease. Information and ideas are logically sequenced, and cohesion is well managed. Occasional lapses in coherence and cohesion may occur. Paragraphing is used sufficiently and appropriately.",
+7:"Information and ideas are logically organised, and there is a clear progression throughout the response. (A few lapses may occur, but these are minor.) A range of cohesive devices including reference and substitution is used flexibly but with some inaccuracies or some over/under use.",
+6:"Information and ideas are generally arranged coherently and there is a clear overall progression. Cohesive devices are used to some good effect but cohesion within and/or between sentences may be faulty or mechanical due to misuse, overuse or omission. The use of reference and substitution may lack flexibility or clarity and result in some repetition or error.",
+5:"Organisation is evident but is not wholly logical and there may be a lack of overall progression. Nevertheless, there is a sense of underlying coherence to the response. The relationship of ideas can be followed but the sentences are not fluently linked to each other. There may be limited/overuse of cohesive devices with some inaccuracy. The writing may be repetitive due to inadequate and/or inaccurate use of reference and substitution.",
+4:"Information and ideas are evident but not arranged coherently and there is no clear progression within the response. Relationships between ideas can be unclear and/or inadequately marked. There is some use of basic cohesive devices, which may be inaccurate or repetitive. There is inaccurate use or a lack of substitution or referencing.",
+3:"There is no apparent logical organisation. Ideas are discernible but difficult to relate to each other. There is minimal use of sequencers or cohesive devices. Those used do not necessarily indicate a logical relationship between ideas. There is difficulty in identifying referencing.",
+2:"There is little relevant message, or the entire response may be off-topic. There is little evidence of control of organisational features.",
+1:"The writing fails to communicate any message and appears to be by a virtual non-writer. Responses of 20 words or fewer are rated at Band 1."};
+const CC2_EXTRA = {7:" Paragraphing is generally used effectively to support overall coherence, and the sequencing of ideas within a paragraph is generally logical.",6:" Paragraphing may not always be logical and/or the central topic may not always be clear.",5:" Paragraphing may be inadequate or missing.",4:" There may be no paragraphing and/or no clear main topic within paragraphs.",3:" Any attempts at paragraphing are unhelpful."};
+const CC2 = {}; for (let b=1;b<=9;b++) CC2[b] = CC_BASE[b] + (CC2_EXTRA[b]||"");
+const TA = {
+9:"All the requirements of the task are fully and appropriately satisfied. There may be extremely rare lapses in content.",
+8:"The response covers all the requirements of the task appropriately, relevantly and sufficiently. Key features are skilfully selected, and clearly presented, highlighted and illustrated. There may be occasional omissions or lapses in content.",
+7:"The response covers the requirements of the task. The content is relevant and accurate – there may be a few omissions or lapses. The format is appropriate. Key features which are selected are covered and clearly highlighted but could be more fully or more appropriately illustrated or extended. It presents a clear overview, the data are appropriately categorised, and main trends or differences are identified.",
+6:"The response focuses on the requirements of the task and an appropriate format is used. Key features which are selected are covered and adequately highlighted. A relevant overview is attempted. Information is appropriately selected and supported using figures/data. Some irrelevant, inappropriate or inaccurate information may occur in areas of detail or when illustrating or extending the main points. Some details may be missing (or excessive) and further extension or illustration may be needed.",
+5:"The response generally addresses the requirements of the task. The format may be inappropriate in places. Key features which are selected are not adequately covered. The recounting of detail is mainly mechanical. There may be no data to support the description. There may be a tendency to focus on details (without referring to the bigger picture). The inclusion of irrelevant, inappropriate or inaccurate material in key areas detracts from the task achievement. There is limited detail when extending and illustrating the main points.",
+4:"The response is an attempt to address the task. Few key features have been selected. The format may be inappropriate. Key features which are presented may be irrelevant, repetitive, inaccurate or inappropriate.",
+3:"The response does not address the requirements of the task (possibly because of misunderstanding of the data/diagram). Key features which are presented may be largely irrelevant. Limited information is presented, and this may be used repetitively.",
+2:"The content barely relates to the task.",
+1:"Responses of 20 words or fewer are rated at Band 1. The content is wholly unrelated to the task. Any copied rubric must be discounted."};
+const TR = {
+9:"The prompt is appropriately addressed and explored in depth. A clear and fully developed position is presented which directly answers the question/s. Ideas are relevant, fully extended and well supported. Any lapses in content or support are extremely rare.",
+8:"The prompt is appropriately and sufficiently addressed. A clear and well-developed position is presented in response to the question/s. Ideas are relevant, well extended and supported. There may be occasional omissions or lapses in content.",
+7:"The main parts of the prompt are appropriately addressed. A clear and developed position is presented. Main ideas are extended and supported but there may be a tendency to over-generalise or there may be a lack of focus and precision in supporting ideas/material.",
+6:"The main parts of the prompt are addressed (though some may be more fully covered than others). An appropriate format is used. A position is presented that is directly relevant to the prompt, although the conclusions drawn may be unclear, unjustified or repetitive. Main ideas are relevant, but some may be insufficiently developed or may lack clarity, while some supporting arguments and evidence may be less relevant or inadequate.",
+5:"The main parts of the prompt are incompletely addressed. The format may be inappropriate in places. The writer expresses a position, but the development is not always clear. Some main ideas are put forward, but they are limited and are not sufficiently developed and/or there may be irrelevant detail. There may be some repetition.",
+4:"The prompt is tackled in a minimal way, or the answer is tangential, possibly due to some misunderstanding of the prompt. The format may be inappropriate. A position is discernible, but the reader has to read carefully to find it. Main ideas are difficult to identify and such ideas that are identifiable may lack relevance, clarity and/or support. Large parts of the response may be repetitive.",
+3:"No part of the prompt is adequately addressed, or the prompt has been misunderstood. No relevant position can be identified, and/or there is little direct response to the question/s. There are few ideas, and these may be irrelevant or insufficiently developed.",
+2:"The content is barely related to the prompt. No position can be identified. There may be glimpses of one or two ideas without development.",
+1:"Responses of 20 words or fewer are rated at Band 1. The content is wholly unrelated to the prompt."};
+const BAND0 = "Band 0: should only be used where a candidate did not attend or attempt the question in any way, used a language other than English throughout, or where there is proof that a candidate's answer has been totally memorised.";
+const CRIT = {
+  1:[{key:"TA",name:"Task Achievement",d:TA},{key:"CC",name:"Coherence & Cohesion",d:CC_BASE},{key:"LR",name:"Lexical Resource",d:LR},{key:"GRA",name:"Grammatical Range & Accuracy",d:GRA}],
+  2:[{key:"TR",name:"Task Response",d:TR},{key:"CC",name:"Coherence & Cohesion",d:CC2},{key:"LR",name:"Lexical Resource",d:LR},{key:"GRA",name:"Grammatical Range & Accuracy",d:GRA}]
+};
+
+/* ---------------- Question bank (original practice items; all figures are invented) ---------------- */
+const T1TYPES = {line:"Line graph",bar:"Bar chart",pie:"Pie chart",mixed:"Multiple graphs",table:"Table",process:"Process diagram",map:"Maps"};
+const BANK1 = [
+ {id:"L1",type:"line",prompt:"The graph below shows the average number of hours per week that adults in one country spent on three leisure activities between 2000 and 2020.",
+  visual:{kind:"line",title:"Average weekly hours spent on leisure activities (adults)",unit:"hours per week",x:["2000","2004","2008","2012","2016","2020"],
+   series:[{name:"Streaming video",v:[2,3.5,5.5,8,10.5,13]},{name:"Reading books",v:[6,5.8,5.2,4.6,4.1,3.8]},{name:"Outdoor sport",v:[3,3.2,3.1,3.6,4.2,4.5]}]}},
+ {id:"L2",type:"line",prompt:"The graph below shows the percentage of households with internet access in four countries from 1998 to 2018.",
+  visual:{kind:"line",title:"Households with internet access (%)",unit:"%",x:["1998","2002","2006","2010","2014","2018"],
+   series:[{name:"Canada",v:[25,52,68,80,87,92]},{name:"South Korea",v:[20,60,80,96,98,99]},{name:"Mexico",v:[4,10,20,31,44,56]},{name:"Egypt",v:[1,3,8,18,30,45]}]}},
+ {id:"L3",type:"line",prompt:"The graph below shows the number of visitors to three museums in a European city between 1990 and 2020.",
+  visual:{kind:"line",title:"Annual visitors to three city museums",unit:"millions",x:["1990","1995","2000","2005","2010","2015","2020"],
+   series:[{name:"Science Museum",v:[1.2,1.5,1.9,2.6,3.0,3.4,1.1]},{name:"History Museum",v:[2.5,2.4,2.2,2.3,2.1,2.0,0.7]},{name:"Art Gallery",v:[0.8,0.9,1.5,1.8,2.4,2.9,1.0]}]}},
+ {id:"B1",type:"bar",prompt:"The chart below shows how students at one university travelled to campus in 2005 and 2025.",
+  visual:{kind:"bar",title:"Main mode of transport to campus (% of students)",unit:"%",x:["Car","Bus","Bicycle","Walking","Train"],
+   series:[{name:"2005",v:[38,27,9,18,8]},{name:"2025",v:[17,31,24,14,14]}]}},
+ {id:"B2",type:"bar",prompt:"The chart below shows the average monthly spending of households in three age groups on five categories in one country.",
+  visual:{kind:"bar",title:"Average monthly household spending by age of head of household",unit:"US$",x:["Housing","Food","Transport","Entertainment","Health"],
+   series:[{name:"18–30",v:[820,310,180,240,60]},{name:"31–50",v:[1150,450,260,170,120]},{name:"51+",v:[900,380,150,130,290]}]}},
+ {id:"B3",type:"bar",prompt:"The chart below shows the amount of electricity produced from four sources in one country in 2000, 2010 and 2020.",
+  visual:{kind:"bar",title:"Electricity production by source",unit:"terawatt hours (TWh)",x:["Coal","Natural gas","Nuclear","Renewables"],
+   series:[{name:"2000",v:[210,80,60,20]},{name:"2010",v:[180,120,65,60]},{name:"2020",v:[90,140,55,170]}]}},
+ {id:"P1",type:"pie",prompt:"The pie charts below show the composition of household waste collected in one city in 1995 and 2020.",
+  visual:{kind:"pie",pies:[{title:"1995",s:[["Food & garden",38],["Paper & card",30],["Plastic",10],["Glass",9],["Metal",6],["Other",7]]},{title:"2020",s:[["Food & garden",29],["Paper & card",18],["Plastic",24],["Glass",7],["Metal",5],["Other",17]]}],title:"Household waste by material (%)"}},
+ {id:"P2",type:"pie",prompt:"The pie charts below show where a national children's charity's income came from and how the money was spent in one year.",
+  visual:{kind:"pie",title:"Charity finances, one year (%)",pies:[{title:"Sources of income",s:[["Individual donations",47],["Charity shops",21],["Legacies",14],["Government grants",12],["Investments",6]]},{title:"Expenditure",s:[["Children's programmes",71],["Fundraising",17],["Administration",8],["Campaigns",4]]}]}},
+ {id:"P3",type:"pie",prompt:"The pie charts below show the main reasons adults gave for learning a foreign language at a community college in 2000 and 2020.",
+  visual:{kind:"pie",title:"Main reason for studying a foreign language (%)",pies:[{title:"2000",s:[["Career",32],["Travel",28],["Personal interest",22],["Family & friends",12],["Study abroad",6]]},{title:"2020",s:[["Career",45],["Travel",18],["Personal interest",15],["Family & friends",9],["Study abroad",13]]}]}},
+ {id:"M1",type:"mixed",prompt:"The bar chart below shows the number of international students at one university by region of origin in 2012 and 2022. The pie chart shows the subjects these students studied in 2022.",
+  visual:{kind:"multi",parts:[{kind:"bar",title:"International students by region of origin",unit:"students",x:["East Asia","South Asia","Europe","Africa","Americas"],series:[{name:"2012",v:[1200,600,900,300,400]},{name:"2022",v:[2100,1800,700,650,450]}]},
+   {kind:"pie",title:"Subjects studied by international students, 2022 (%)",pies:[{title:"2022",s:[["Business",34],["Engineering",26],["Computing",18],["Health",12],["Arts",10]]}]}]}},
+ {id:"M2",type:"mixed",prompt:"The line graph below shows average daily water consumption per person in one city from 1980 to 2020. The table shows how water was used by sector in the same city in 2020.",
+  visual:{kind:"multi",parts:[{kind:"line",title:"Average daily water use per person",unit:"litres",x:["1980","1990","2000","2010","2020"],series:[{name:"Litres per person",v:[210,235,240,205,170]}]},
+   {kind:"table",title:"Water use by sector, 2020",cols:["Sector","Share of total (%)"],rows:[["Domestic",46],["Industry",31],["Agriculture",15],["Public services",8]]}]}},
+ {id:"M3",type:"mixed",prompt:"The bar chart below shows the average number of cinema visits per person per year by age group in one country in 2010 and 2020. The pie chart shows how cinema tickets were bought in 2020.",
+  visual:{kind:"multi",parts:[{kind:"bar",title:"Cinema visits per person per year",unit:"visits",x:["15–24","25–39","40–59","60+"],series:[{name:"2010",v:[9.2,5.4,3.1,1.6]},{name:"2020",v:[6.1,4.0,2.8,2.2]}]},
+   {kind:"pie",title:"How tickets were bought, 2020 (%)",pies:[{title:"2020",s:[["Website",58],["Box office",27],["Mobile app",15]]}]}]}},
+ {id:"T1",type:"table",prompt:"The table below gives information about public bike-sharing schemes in six cities.",
+  visual:{kind:"table",title:"Public bike-sharing schemes in six cities",cols:["City","Year launched","Number of bikes","Average daily trips (thousands)"],
+   rows:[["Paris",2007,19000,110],["Hangzhou",2008,84000,240],["Montreal",2009,9500,32],["London",2010,12000,30],["Mexico City",2010,6800,35],["Seoul",2015,43000,95]]}},
+ {id:"T2",type:"table",prompt:"The table below shows the proportion of the population aged 65 and over in five countries in 1990 and 2020, with projections for 2050.",
+  visual:{kind:"table",title:"Population aged 65 and over (% of total)",cols:["Country","1990","2020","2050 (projected)"],rows:[["Japan",12,29,38],["Italy",15,23,34],["USA",12,17,22],["Brazil",5,10,23],["Nigeria",3,3,5]]}},
+ {id:"T3",type:"table",prompt:"The table below shows the percentage of people in three age groups who used different sources to get news in one country in 2024.",
+  visual:{kind:"table",title:"Sources of news by age group, 2024 (% of people using each source)",cols:["Source","18–34","35–54","55+"],rows:[["Social media",64,41,19],["Television",28,49,72],["News websites",47,44,30],["Radio",11,22,35],["Printed newspapers",4,12,31]],note:"Respondents could choose more than one source."}},
+ {id:"D1",type:"process",prompt:"The diagram below shows how glass bottles are recycled.",
+  visual:{kind:"process",title:"Recycling glass bottles",cycle:true,steps:["Used bottles left at bottle banks","Collected and taken to recycling plant","Sorted by colour: clear, green, brown","Washed with high-pressure water","Crushed into small pieces (cullet)","Melted in furnace at 1,500°C","Moulded into new bottles","Filled, labelled and sent to shops"]}},
+ {id:"D2",type:"process",prompt:"The diagram below shows the life cycle of the honeybee.",
+  visual:{kind:"process",title:"Life cycle of the honeybee (worker bee)",cycle:true,steps:["Queen lays egg in wax cell (day 0)","Egg hatches into larva (day 3)","Larva fed royal jelly, then pollen and honey (days 3–9)","Cell sealed; larva spins cocoon (day 9)","Pupa develops legs, wings and eyes (days 10–20)","Adult worker emerges (day 21)","Cleans cells and feeds larvae (weeks 1–3)","Collects nectar and pollen (from week 3)"]}},
+ {id:"D3",type:"process",prompt:"The diagram below shows the stages in the production of olive oil.",
+  visual:{kind:"process",title:"Producing olive oil",cycle:false,steps:["Olives harvested by hand or machine (Oct–Dec)","Leaves and stems removed","Olives washed in cold water","Crushed into paste by stone mills","Paste mixed slowly for 30–40 minutes","Centrifuge separates oil from water and solids","Oil stored in steel tanks to settle","Filtered and bottled"]}},
+ {id:"MP1",type:"map",prompt:"The maps below show the village of Ferndale in 1990 and today.",
+  visual:{kind:"map",maps:[
+   {title:"1990",f:[["field",4,4,40,22,"Farmland"],["trees",48,4,30,22,"Forest"],["road",0,30,100,4,"Main Road"],["water",82,0,5,64,""],["bld",8,40,26,18,"Houses"],["bld",40,40,10,9,"Post office"],["bld",56,40,16,12,"School"],["field",40,52,32,10,"Playing field"]]},
+   {title:"Today",f:[["bld",4,4,40,22,"Housing estate"],["bld",48,4,12,12,"Sports centre"],["trees",62,4,16,22,"Forest"],["road",0,30,100,4,"Main Road"],["water",82,0,5,64,""],["road",80,29,9,6,"Bridge"],["bld",8,40,26,18,"Houses"],["bld",40,40,10,9,"Café"],["bld",56,40,22,12,"School (extended)"],["road",40,52,32,10,"Car park"],["bld",88,38,11,14,"Super market"]]}]}},
+ {id:"MP2",type:"map",prompt:"The maps below show a university campus at present and the plans for its development.",
+  visual:{kind:"map",maps:[
+   {title:"Present",f:[["road",0,0,100,5,"Station Road"],["bld",6,10,22,14,"Library"],["bld",34,10,26,14,"Lecture halls"],["road",64,10,30,20,"Car park"],["field",6,30,54,16,"Sports field"],["trees",64,34,30,26,"Woodland"],["bld",6,50,22,10,"Student housing"],["bld",34,50,26,10,"Cafeteria"]]},
+   {title:"Proposed",f:[["road",0,0,100,5,"Station Road"],["bld",6,10,22,14,"Library (enlarged)"],["bld",34,10,26,14,"Lecture halls"],["bld",64,10,30,20,"Science centre"],["bld",6,30,54,16,"Student housing (new)"],["trees",76,34,18,26,"Woodland"],["road",64,34,10,26,"Car park"],["bld",6,50,22,10,"Sports hall"],["bld",34,50,26,10,"Food court"]]}]}},
+ {id:"MP3",type:"map",prompt:"The maps below show an island before and after it was developed for tourism.",
+  visual:{kind:"map",maps:[
+   {title:"Before",f:[["water",0,0,100,64,""],["sand",8,8,84,48,""],["trees",30,14,48,34,"Palm trees"],["sand",8,22,18,22,"Beach"]]},
+   {title:"After",f:[["water",0,0,100,64,""],["sand",8,8,84,48,""],["trees",62,14,18,34,"Palm trees"],["sand",8,22,14,22,"Beach"],["bld",34,12,10,8,"Reception"],["bld",48,12,10,8,"Restaurant"],["bld",26,30,8,6,"Huts"],["bld",38,30,8,6,"Huts"],["bld",50,30,8,6,"Huts"],["road",22,24,36,3,"Footpath"],["road",86,26,14,3,"Pier"],["water",10,44,12,8,"Swimming area"]]}]}}
+];
+const T2TYPES = {opinion:"Opinion (agree/disagree)",discussion:"Discuss both views",advdis:"Advantages & disadvantages",problem:"Problem & solution",double:"Two-part question"};
+const BANK2 = [
+ {id:"E1",type:"opinion",prompt:"Some people believe that university education should be free for all students, regardless of their family's income.\n\nTo what extent do you agree or disagree?"},
+ {id:"E2",type:"opinion",prompt:"In many cities, governments are spending large amounts of money on public art such as sculptures and murals. Some people think this money would be better spent on housing and healthcare.\n\nTo what extent do you agree or disagree?"},
+ {id:"E3",type:"opinion",prompt:"Children today spend too much time on screens, and parents should strictly limit the hours they spend on phones and tablets.\n\nTo what extent do you agree or disagree?"},
+ {id:"E4",type:"opinion",prompt:"Working from home is better for both employees and employers than working in an office.\n\nTo what extent do you agree or disagree?"},
+ {id:"E5",type:"opinion",prompt:"Some people say that the best way to improve road safety is to increase the minimum legal age for driving a car.\n\nTo what extent do you agree or disagree?"},
+ {id:"E6",type:"discussion",prompt:"Some people think that young people should be free to choose any career they like. Others believe that they should consider the needs of their country and the job market.\n\nDiscuss both these views and give your own opinion."},
+ {id:"E7",type:"discussion",prompt:"Some people believe that zoos are cruel and should be closed. Others think that zoos play an important role in protecting wild animals.\n\nDiscuss both these views and give your own opinion."},
+ {id:"E8",type:"discussion",prompt:"Some people think that history is one of the most important school subjects. Others think that subjects like science and technology are more important for today's students.\n\nDiscuss both these views and give your own opinion."},
+ {id:"E9",type:"discussion",prompt:"Some people argue that governments should invest in public transport, while others believe building more roads is the best way to reduce traffic congestion.\n\nDiscuss both these views and give your own opinion."},
+ {id:"E10",type:"discussion",prompt:"Some people prefer to spend their money on experiences such as travel and concerts, while others prefer to buy things like clothes and electronic goods.\n\nDiscuss both these views and give your own opinion."},
+ {id:"E11",type:"advdis",prompt:"More and more people are choosing to shop online rather than in traditional shops.\n\nDo the advantages of this trend outweigh the disadvantages?"},
+ {id:"E12",type:"advdis",prompt:"In some countries, young people are encouraged to take a gap year between finishing school and starting university, to travel or work.\n\nDiscuss the advantages and disadvantages of this."},
+ {id:"E13",type:"advdis",prompt:"Many companies now use artificial intelligence to carry out tasks that were previously done by people.\n\nDo the advantages of this development outweigh the disadvantages?"},
+ {id:"E14",type:"advdis",prompt:"In many countries, people are living in cities rather than in the countryside.\n\nWhat are the advantages and disadvantages of living in a city?"},
+ {id:"E15",type:"problem",prompt:"In many countries, the amount of food that is thrown away is increasing.\n\nWhat are the causes of this problem, and what measures could be taken to reduce it?"},
+ {id:"E16",type:"problem",prompt:"Many young people today find it difficult to buy their own home.\n\nWhy is this the case? What can be done to solve this problem?"},
+ {id:"E17",type:"problem",prompt:"Rates of obesity among children are rising in many parts of the world.\n\nWhat are the reasons for this, and what can be done to address the problem?"},
+ {id:"E18",type:"problem",prompt:"In some areas, many traditional skills and crafts are disappearing.\n\nWhy is this happening? What could be done to preserve these skills?"},
+ {id:"E19",type:"problem",prompt:"Noise pollution in cities is becoming a serious problem.\n\nWhat are the main causes, and what solutions can you suggest?"},
+ {id:"E20",type:"double",prompt:"Nowadays, many people choose to have their own pets, such as dogs and cats.\n\nWhy do people keep pets? Is this a positive or negative development?"},
+ {id:"E21",type:"double",prompt:"In many workplaces, people now communicate mainly by email and messaging apps rather than face to face.\n\nWhy is this happening? Is it a positive or negative development?"},
+ {id:"E22",type:"double",prompt:"Some people choose to stay in the same job for their whole working life, while others change jobs frequently.\n\nWhy do people change jobs? Which approach do you think is better?"},
+ {id:"E23",type:"double",prompt:"Many people today are interested in finding out about the history of their family and ancestors.\n\nWhy are people interested in this? Is it a useful activity?"},
+ {id:"E24",type:"double",prompt:"More people are now travelling abroad for holidays than ever before.\n\nWhat are the reasons for this? What effects does it have on the places they visit?"}
+];
+
+/* ---------------- Utilities ---------------- */
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const words = s => (String(s).trim().match(/\S+/g) || []).length;
+const roundBand = x => Math.round(x*2)/2;
+const fmtBand = b => (b==null||isNaN(b)) ? "–" : (Number.isInteger(b) ? b.toFixed(1) : String(b));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
+  del(k){ try { localStorage.removeItem(k); } catch {} }
+};
+const fmtTime = s => { s = Math.max(0, Math.floor(s)); const m = Math.floor(s/60), r = s%60; return String(m).padStart(2,"0")+":"+String(r).padStart(2,"0"); };
+const fmtDate = t => new Date(t).toLocaleString(undefined,{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+const LIMITS = {t1:20, t2:30, both:50};
+
+/* ---------------- Charts ---------------- */
+const COLORS = ["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)"];
+const DASH = ["", "6 4", "2 3", "10 3 2 3"];
+function niceMax(m){ if (m<=0) return 1; const raw = m/5, p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw/p; const step = (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p; return {max: Math.ceil(m/step)*step, step}; }
+const num = v => Number(v).toLocaleString("en-GB");
+function legend(series, kind){
+  return `<div style="display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;font-size:12px;margin-top:6px">${series.map((s,i)=>
+    `<span style="display:inline-flex;align-items:center;gap:6px">${kind==="line"
+      ? `<svg width="26" height="10" aria-hidden="true"><line x1="0" y1="5" x2="26" y2="5" stroke="${COLORS[i]}" stroke-width="2.5" stroke-dasharray="${DASH[i%4]}"/></svg>`
+      : `<span style="width:12px;height:12px;border-radius:2px;background:${COLORS[i]};display:inline-block"></span>`}${esc(s.name)}</span>`).join("")}</div>`;
+}
+function axes(W,H,L,T,R,B,max,step,unit){
+  let g = "";
+  for (let v=0; v<=max+1e-9; v+=step){
+    const y = T + (H-T-B) * (1 - v/max);
+    g += `<line class="grid" x1="${L}" x2="${W-R}" y1="${y}" y2="${y}"/><text class="lab" x="${L-6}" y="${y+4}" text-anchor="end">${num(+v.toFixed(2))}</text>`;
+  }
+  g += `<line class="ax" x1="${L}" x2="${L}" y1="${T}" y2="${H-B}"/><line class="ax" x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}"/>`;
+  g += `<text class="lab" transform="translate(12 ${(T+H-B)/2}) rotate(-90)" text-anchor="middle">${esc(unit)}</text>`;
+  return g;
+}
+function lineSVG(v){
+  const W=620,H=330,L=62,R=16,T=14,B=34;
+  const all = v.series.flatMap(s=>s.v); const {max,step} = niceMax(Math.max(...all));
+  const xs = i => L + (W-L-R) * (v.x.length===1?0.5:i/(v.x.length-1));
+  const ys = val => T + (H-T-B) * (1 - val/max);
+  let g = axes(W,H,L,T,R,B,max,step,v.unit);
+  v.x.forEach((x,i)=> g += `<text class="lab" x="${xs(i)}" y="${H-B+18}" text-anchor="middle">${esc(x)}</text>`);
+  v.series.forEach((s,si)=>{
+    const pts = s.v.map((val,i)=>`${xs(i)},${ys(val)}`).join(" ");
+    g += `<polyline points="${pts}" fill="none" stroke="${COLORS[si]}" stroke-width="2.5" stroke-dasharray="${DASH[si%4]}" stroke-linejoin="round"/>`;
+    s.v.forEach((val,i)=> g += `<circle cx="${xs(i)}" cy="${ys(val)}" r="3.5" fill="${COLORS[si]}"/>`);
+  });
+  return `<div class="vt">${esc(v.title)}</div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(v.title)}">${g}</svg>${v.series.length>1?legend(v.series,"line"):""}`;
+}
+function barSVG(v){
+  const W=620,H=330,L=62,R=16,T=14,B=34;
+  const all = v.series.flatMap(s=>s.v); const {max,step} = niceMax(Math.max(...all));
+  const ys = val => T + (H-T-B) * (1 - val/max);
+  let g = axes(W,H,L,T,R,B,max,step,v.unit);
+  const gw = (W-L-R)/v.x.length, inner = gw*0.76, bw = inner/v.series.length;
+  v.x.forEach((x,i)=>{
+    const x0 = L + gw*i + (gw-inner)/2;
+    v.series.forEach((s,si)=>{ const y = ys(s.v[i]); g += `<rect x="${x0+bw*si+1}" y="${y}" width="${Math.max(1,bw-2)}" height="${H-B-y}" fill="${COLORS[si]}" rx="1.5"><title>${esc(s.name)}: ${num(s.v[i])}</title></rect>`; });
+    g += `<text class="lab" x="${L+gw*i+gw/2}" y="${H-B+18}" text-anchor="middle">${esc(x)}</text>`;
+  });
+  return `<div class="vt">${esc(v.title)}</div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(v.title)}">${g}</svg>${legend(v.series,"bar")}`;
+}
+function pieSVG(v){
+  const labels = [...new Set(v.pies.flatMap(p=>p.s.map(x=>x[0])))];
+  const col = l => COLORS[labels.indexOf(l)%COLORS.length];
+  const one = p => {
+    const S=260,c=S/2,r=110; let a=-Math.PI/2, g="";
+    const tot = p.s.reduce((t,x)=>t+x[1],0);
+    p.s.forEach(([l,val])=>{
+      const ang = val/tot*2*Math.PI, a2 = a+ang, large = ang>Math.PI?1:0;
+      g += `<path d="M${c},${c} L${c+r*Math.cos(a)},${c+r*Math.sin(a)} A${r},${r} 0 ${large} 1 ${c+r*Math.cos(a2)},${c+r*Math.sin(a2)} Z" fill="${col(l)}" stroke="var(--sheet)" stroke-width="2"><title>${esc(l)}: ${val}%</title></path>`;
+      const m = a+ang/2, lr = val<7 ? r+14 : r*0.64;
+      g += `<text x="${c+lr*Math.cos(m)}" y="${c+lr*Math.sin(m)+4}" text-anchor="middle" style="font-size:12px;font-weight:600;${val<7?"":"fill:#fff"}">${val}%</text>`;
+      a = a2;
+    });
+    return `<div><div class="vt">${esc(p.title)}</div><svg viewBox="-14 -14 ${S+28} ${S+28}" style="max-width:280px;margin:0 auto" role="img" aria-label="${esc(p.title)}">${g}</svg></div>`;
+  };
+  return `${v.title?`<div class="vt">${esc(v.title)}</div>`:""}<div class="vgrid">${v.pies.map(one).join("")}</div>${legend(labels.map(n=>({name:n})),"bar")}`;
+}
+function tableHTML(v){
+  return `<div class="vt">${esc(v.title)}</div><div style="overflow-x:auto"><table class="data"><thead><tr>${v.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${v.rows.map(r=>`<tr>${r.map(c=>`<td>${typeof c==="number"?num(c):esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>${v.note?`<div class="note">${esc(v.note)}</div>`:""}`;
+}
+function wrapText(t, n){ const out=[]; let line=""; for (const w of t.split(" ")){ if ((line+" "+w).trim().length>n){ if(line) out.push(line); line=w; } else line=(line+" "+w).trim(); } if(line) out.push(line); return out; }
+function processSVG(v){
+  const per=4, bw=132, bh=78, gx=28, gy=46, W=per*bw+(per-1)*gx+20, rows=Math.ceil(v.steps.length/per), H=rows*bh+(rows-1)*gy+20+(v.cycle?30:0);
+  const pos = i => { const r=Math.floor(i/per), c=i%per, cc = r%2===0?c:per-1-c; return {x:10+cc*(bw+gx), y:10+r*(bh+gy)}; };
+  let g = `<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>`;
+  v.steps.forEach((s,i)=>{
+    const p=pos(i);
+    g += `<rect x="${p.x}" y="${p.y}" width="${bw}" height="${bh}" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1"/>`;
+    g += `<circle cx="${p.x+14}" cy="${p.y+14}" r="10" fill="var(--accent)"/><text x="${p.x+14}" y="${p.y+18}" text-anchor="middle" style="font-size:11px;font-weight:700;fill:var(--accent-ink)">${i+1}</text>`;
+    wrapText(s,20).slice(0,4).forEach((ln,li)=> g += `<text x="${p.x+bw/2}" y="${p.y+36+li*13}" text-anchor="middle" style="font-size:11px">${esc(ln)}</text>`);
+    if (i<v.steps.length-1){
+      const q=pos(i+1);
+      if (q.y===p.y){ const dir = q.x>p.x?1:-1; const x1 = dir>0?p.x+bw:p.x, x2 = dir>0?q.x:q.x+bw; g += `<line x1="${x1+dir*2}" y1="${p.y+bh/2}" x2="${x2-dir*3}" y2="${p.y+bh/2}" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#arr)"/>`; }
+      else g += `<line x1="${p.x+bw/2}" y1="${p.y+bh+2}" x2="${q.x+bw/2}" y2="${q.y-3}" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#arr)"/>`;
+    }
+  });
+  if (v.cycle){ const last=pos(v.steps.length-1); g += `<text x="${W/2}" y="${H-8}" text-anchor="middle" class="lab" style="font-style:italic">↺ after stage ${v.steps.length}, the cycle returns to stage 1</text>`; void last; }
+  return `<div class="vt">${esc(v.title)}</div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(v.title)}">${g}</svg>`;
+}
+const MAPFILL = {road:"var(--road)",water:"var(--water)",trees:"var(--trees)",field:"var(--field)",bld:"var(--bld)",sand:"var(--sand)"};
+function mapSVG(v){
+  const one = m => {
+    let g = `<rect x="0" y="0" width="100" height="64" fill="var(--paper)" stroke="var(--line)" stroke-width=".4"/>`;
+    m.f.forEach(([k,x,y,w,h])=> g += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${MAPFILL[k]}" rx="${k==="bld"?1:0.4}" stroke="${k==="bld"?"var(--muted)":"none"}" stroke-width=".25"/>`);
+    m.f.forEach(([k,x,y,w,h,l])=>{ if(!l) return; const lines = w<14 ? wrapText(l,8) : [l]; lines.forEach((ln,i)=> g += `<text x="${x+w/2}" y="${y+h/2+1-((lines.length-1)*1.6)+i*3.2}" text-anchor="middle" style="font-size:2.7px;font-weight:600">${esc(ln)}</text>`); });
+    g += `<g transform="translate(94 8)"><path d="M0,-5 L2,1 L0,0 L-2,1 Z" fill="var(--ink)"/><text x="0" y="5" text-anchor="middle" style="font-size:3px;font-weight:700">N</text></g>`;
+    return `<div><div class="vt">${esc(m.title)}</div><svg viewBox="-1 -1 102 66" role="img" aria-label="Map: ${esc(m.title)}">${g}</svg></div>`;
+  };
+  return `<div class="vgrid">${v.maps.map(one).join("")}</div>`;
+}
+function renderVisual(v){
+  if (!v) return "";
+  switch (v.kind){
+    case "line": return lineSVG(v);
+    case "bar": return barSVG(v);
+    case "pie": return pieSVG(v);
+    case "table": return tableHTML(v);
+    case "process": return processSVG(v);
+    case "map": return mapSVG(v);
+    case "multi": return v.parts.map(p=>`<div style="margin-bottom:18px">${renderVisual(p)}</div>`).join("");
+  }
+  return "";
+}
+/* Plain-text version of the visual, so the examiner can check accuracy of figures */
+function describeVisual(v){
+  if (!v) return "";
+  switch (v.kind){
+    case "line": case "bar": return `${v.kind==="line"?"LINE GRAPH":"BAR CHART"}: ${v.title} (unit: ${v.unit})\nCategories/x-axis: ${v.x.join(", ")}\n` + v.series.map(s=>`- ${s.name}: ${s.v.map((val,i)=>`${v.x[i]}=${val}`).join(", ")}`).join("\n");
+    case "pie": return `PIE CHART(S): ${v.title||""}\n` + v.pies.map(p=>`- ${p.title}: ${p.s.map(x=>`${x[0]} ${x[1]}%`).join(", ")}`).join("\n");
+    case "table": return `TABLE: ${v.title}\nColumns: ${v.cols.join(" | ")}\n` + v.rows.map(r=>r.join(" | ")).join("\n") + (v.note?`\nNote: ${v.note}`:"");
+    case "process": return `PROCESS DIAGRAM: ${v.title}${v.cycle?" (cyclical)":" (linear)"}\n` + v.steps.map((s,i)=>`${i+1}. ${s}`).join("\n");
+    case "map": return `MAPS:\n` + v.maps.map(m=>`[${m.title}] ` + m.f.filter(f=>f[5]).map(([k,x,y,w,h,l])=>`${l} (${k==="bld"?"building/area":k}; ${y+h/2<22?"north":y+h/2>42?"south":"centre"}-${x+w/2<34?"west":x+w/2>66?"east":"middle"})`).join("; ") + (m.f.some(f=>f[0]==="water"&&!f[5]&&f[3]<10)?"; a river runs north–south on the east side":"")).join("\n");
+    case "multi": return v.parts.map(describeVisual).join("\n\n");
+  }
+  return "";
+}
+
+/* ---------------- State ---------------- */
+let sample = null, sampleReady = false, imagesOK = false;
+const app = $("#app");
+const setup = Object.assign({source:"random", mode:"both", timed:true, t1type:"any", t2type:"any", customTask:1, customText:"", customDesc:""}, store.get("iwc.setup", {}));
+let customImage = null; // {blob, url}
+let current = store.get("iwc.current", null);
+let tick = null;
+let view = "home";
+
+(async () => {
+  try { sample = window.claude ? await window.claude.use("sample") : null; } catch { sample = null; }
+  sampleReady = true;
+  if (sample){ try { const l = await sample.limits(); imagesOK = !!l?.images; } catch { imagesOK = false; } }
+  if (view==="home") renderHome(); else if (view==="result" && resultCtx) renderResult();
+})();
+
+function saveSetup(){ const {customText,customDesc,...rest} = setup; store.set("iwc.setup", {...rest, customText, customDesc}); }
+function saveCurrent(){ if (current) store.set("iwc.current", current); else store.del("iwc.current"); }
+function history(){ return store.get("iwc.history", []); }
+
+function nav(to){
+  view = to;
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current", String(b.dataset.nav===(to==="result"?"history":to==="test"?"home":to))));
+  if (tick && to!=="test"){ clearInterval(tick); tick=null; }
+  window.scrollTo(0,0);
+  if (to==="home") renderHome(); else if (to==="history") renderHistory(); else if (to==="desc") renderDesc(); else if (to==="test") renderTest(); else if (to==="result") renderResult();
+}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{ if (view==="test" && !confirmLeave()) return; nav(b.dataset.nav); }));
+function confirmLeave(){ return true; } // drafts are autosaved; the test can be resumed from Practice
+
+/* ---------------- Home ---------------- */
+function segBtn(group, val, label, sub, cur){ return `<button type="button" data-g="${group}" data-v="${val}" aria-pressed="${cur===val}">${label}${sub?`<small>${sub}</small>`:""}</button>`; }
+function renderHome(){
+  const H = history();
+  const mins = LIMITS[setup.mode];
+  const random = setup.source==="random";
+  const modeSeg = random
+    ? [segBtn("mode","t1","Task 1 only",`${LIMITS.t1} min · 150+ words`,setup.mode),segBtn("mode","t2","Task 2 only",`${LIMITS.t2} min · 250+ words`,setup.mode),segBtn("mode","both","Full test",`${LIMITS.both} min · both tasks`,setup.mode)].join("")
+    : [segBtn("customTask","1","Task 1 question",`${LIMITS.t1} min · 150+ words`,String(setup.customTask)),segBtn("customTask","2","Task 2 question",`${LIMITS.t2} min · 250+ words`,String(setup.customTask))].join("");
+  const timeMins = random ? mins : (setup.customTask==1?LIMITS.t1:LIMITS.t2);
+  app.innerHTML = `<main class="wrap"><div class="home">
+   <section>
+    <div class="hero"><div class="eyebrow">Academic Writing practice</div><h1>Sit a writing test, then get it marked band by band.</h1>
+     <p>Pick a random exam-style question or paste one you found. Write against the clock, and Claude marks it on the four official criteria with corrections and a path to the next band.</p></div>
+    ${current && !current.submitted ? `<div class="banner info" style="margin-top:18px"><span>You have an unfinished ${current.mode==="both"?"full test":current.mode==="t1"?"Task 1":"Task 2"} from ${fmtDate(current.startedAt)}.</span><span style="margin-left:auto;display:flex;gap:8px"><button class="btn small primary" id="resume">Resume</button><button class="btn small" id="discard">Discard</button></span></div>`:""}
+    ${sampleReady && !sample ? `<div class="banner warn" style="margin-top:18px">Marking needs Claude, which isn't available in this view. Open this page on claude.ai while signed in. You can still practise and keep your answers.</div>`:""}
+    <div class="panel setup" style="margin-top:20px">
+     <div class="field"><span class="lbl">Question source</span><div class="seg">${segBtn("source","random","Random question","from the practice bank",setup.source)}${segBtn("source","custom","My own question","paste a prompt you found",setup.source)}</div></div>
+     <div class="field"><span class="lbl">${random?"What to practise":"Which task is it?"}</span><div class="seg">${modeSeg}</div></div>
+     ${random && setup.mode!=="t2" ? `<div class="field"><span class="lbl">Task 1 type</span><div class="chips">${[["any","Any (random)"],...Object.entries(T1TYPES)].map(([k,l])=>`<button type="button" data-g="t1type" data-v="${k}" aria-pressed="${setup.t1type===k}">${l}</button>`).join("")}</div></div>`:""}
+     ${random && setup.mode!=="t1" ? `<div class="field"><span class="lbl">Task 2 essay type</span><div class="chips">${[["any","Any (random)"],...Object.entries(T2TYPES)].map(([k,l])=>`<button type="button" data-g="t2type" data-v="${k}" aria-pressed="${setup.t2type===k}">${l}</button>`).join("")}</div></div>`:""}
+     ${!random ? `<div class="field"><label for="ctext">Question text</label><textarea id="ctext" class="input" placeholder="${setup.customTask==1?"e.g. The chart below shows the percentage of people who used public libraries in four countries between 2000 and 2020. Summarise the information…":"e.g. Some people think that all teenagers should be required to do unpaid work in their free time. To what extent do you agree or disagree?"}">${esc(setup.customText)}</textarea></div>
+       ${setup.customTask==1 ? `<div class="field"><span class="lbl">Chart, table, diagram or map</span>
+         <div class="drop" id="drop">${customImage?`<img src="${customImage.url}" alt="Uploaded task visual">`:""}<div style="display:grid;gap:6px;flex:1;min-width:200px"><span class="muted" style="font-size:13px">${imagesOK?"Upload a screenshot or photo so the examiner can check your figures (PNG, JPG, WebP).":"Upload a picture to see it while you write. To have figures checked, also type the key data below."}</span><span style="display:flex;gap:8px;flex-wrap:wrap"><label class="btn small" for="cimg">${customImage?"Replace image":"Choose image"}</label>${customImage?`<button class="btn small" id="cimgx" type="button">Remove</button>`:""}</span><input type="file" id="cimg" accept="image/png,image/jpeg,image/webp,image/gif" hidden></div></div>
+         <textarea id="cdesc" class="input" style="min-height:80px" placeholder="Optional: type the key figures (e.g. Canada 2000 = 45%, 2020 = 30%…). This helps the examiner judge accuracy.">${esc(setup.customDesc)}</textarea></div>`:""}`:""}
+     <div class="field"><span class="lbl">Timing</span><div class="seg">${segBtn("timed","true","Exam timing",`${timeMins}:00 countdown`,String(setup.timed))}${segBtn("timed","false","No time limit","stopwatch only",String(setup.timed))}</div></div>
+     <div class="startrow"><button class="btn primary" id="start">${random?"Start test":"Start writing"}</button><span class="muted" style="font-size:13px">${random?`${setup.mode==="both"?"Task 1 + Task 2":setup.mode==="t1"?"One Task 1 question":"One Task 2 question"} · ${setup.timed?timeMins+" minutes":"untimed"}`:"Your question · "+(setup.timed?timeMins+" minutes":"untimed")}</span></div>
+    </div>
+   </section>
+   <aside class="side">
+    <div class="panel"><div class="eyebrow">Your progress</div>${progressHTML(H)}</div>
+    <div class="panel"><div class="eyebrow">How marking works</div>
+     <ol class="steps"><li>Each task gets a whole band (0–9) on four criteria, matched against the official descriptors.</li><li>Task band = average of the four, rounded to the nearest half band.</li><li>Overall writing band: Task 2 counts twice as much as Task 1.</li><li>Under 150 / 250 words is penalised in Task Achievement / Response, as examiners do.</li></ol>
+     <p class="muted" style="font-size:12px;margin:12px 0 0">Scores are estimates from an AI examiner, not official results.</p></div>
+   </aside></div>
+   <p class="foot">Practice questions are original and written in the style of common exam topics. All figures in charts, tables and maps are invented for practice.</p></main>`;
+  app.querySelectorAll(".seg button,.chips button").forEach(b=>b.addEventListener("click",()=>{
+    const g=b.dataset.g, v=b.dataset.v; setup[g] = g==="timed" ? v==="true" : g==="customTask" ? Number(v) : v; saveSetup(); renderHome();
+  }));
+  const ct=$("#ctext"); ct && ct.addEventListener("input",()=>{ setup.customText=ct.value; saveSetup(); });
+  const cd=$("#cdesc"); cd && cd.addEventListener("input",()=>{ setup.customDesc=cd.value; saveSetup(); });
+  const ci=$("#cimg"); ci && ci.addEventListener("change",()=>{ const f=ci.files[0]; if(!f) return; if(customImage) URL.revokeObjectURL(customImage.url); customImage={blob:f,url:URL.createObjectURL(f)}; renderHome(); });
+  const cx=$("#cimgx"); cx && cx.addEventListener("click",()=>{ URL.revokeObjectURL(customImage.url); customImage=null; renderHome(); });
+  const drop=$("#drop"); if (drop){ drop.addEventListener("dragover",e=>{e.preventDefault();}); drop.addEventListener("drop",e=>{ e.preventDefault(); const f=e.dataTransfer.files[0]; if(f && f.type.startsWith("image/")){ if(customImage) URL.revokeObjectURL(customImage.url); customImage={blob:f,url:URL.createObjectURL(f)}; renderHome(); } }); }
+  $("#start").addEventListener("click", startTest);
+  const r=$("#resume"); r && r.addEventListener("click",()=>nav("test"));
+  const d=$("#discard"); d && d.addEventListener("click",()=>{ current=null; saveCurrent(); renderHome(); });
+  app.querySelectorAll(".hist").forEach(b=>b.addEventListener("click",()=>openHistory(b.dataset.id)));
+}
+function progressHTML(H){
+  if (!H.length) return `<div class="empty">No marked tests yet. Your band scores, criterion averages and past essays will appear here after your first test.</div>`;
+  const keys = [["TA/TR","Task Achievement / Response"],["CC","Coherence & Cohesion"],["LR","Lexical Resource"],["GRA","Grammar"]];
+  const acc = {"TA/TR":[],CC:[],LR:[],GRA:[]};
+  H.slice(0,10).forEach(h=>h.tasks.forEach(t=>t.result?.criteria?.forEach(c=>{ const k = (c.key==="TA"||c.key==="TR")?"TA/TR":c.key; if (acc[k] && typeof c.band==="number") acc[k].push(c.band); })));
+  const avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : null;
+  const rows = keys.map(([k,l])=>{ const a=avg(acc[k]); return `<div class="row"><span>${l}</span><div class="meter"><i style="width:${a?a/9*100:0}%"></i></div><b style="font-family:var(--f-mono);font-variant-numeric:tabular-nums">${a?a.toFixed(1):"–"}</b></div>`; }).join("");
+  const weakest = keys.map(([k,l])=>[l,avg(acc[k])]).filter(x=>x[1]!=null).sort((a,b)=>a[1]-b[1])[0];
+  return `<div class="critavg">${rows}</div>${weakest?`<p style="font-size:13px;margin:10px 0 0">Focus area: <b>${weakest[0]}</b> (average over your last ${Math.min(10,H.length)} tests).</p>`:""}
+   <div class="hist-list">${H.slice(0,4).map(histRow).join("")}</div>${H.length>4?`<button class="btn small" style="margin-top:10px" onclick="document.getElementById('nav-history').click()">See all ${H.length} tests</button>`:""}`;
+}
+function histRow(h){
+  const label = h.tasks.map(t=>t.task===1?(t.q.type?T1TYPES[t.q.type]:"Task 1 (own)"):(t.q.type?T2TYPES[t.q.type].split(" (")[0]:"Task 2 (own)")).join(" + ");
+  return `<button class="hist" data-id="${h.id}"><span class="t">${esc(label)}</span><span class="bandchip">${fmtBand(h.overall)}</span><span class="d">${fmtDate(h.finishedAt)} · ${h.tasks.map(t=>`T${t.task} ${fmtBand(t.result?.taskBand)}`).join(" · ")}</span></button>`;
+}
+
+/* ---------------- Test ---------------- */
+function startTest(){
+  let tasks = [], mode;
+  if (setup.source==="random"){
+    mode = setup.mode;
+    const recent = new Set(history().slice(0,15).flatMap(h=>h.tasks.map(t=>t.q.id)));
+    const choose = (bank, type) => { let pool = bank.filter(q=>type==="any"||q.type===type); const fresh = pool.filter(q=>!recent.has(q.id)); return pick(fresh.length?fresh:pool); };
+    if (mode!=="t2") tasks.push({task:1, q:choose(BANK1, setup.t1type), answer:""});
+    if (mode!=="t1") tasks.push({task:2, q:choose(BANK2, setup.t2type), answer:""});
+  } else {
+    const text = setup.customText.trim();
+    if (text.length<15){ const t=$("#ctext"); t.focus(); t.style.borderColor="var(--mark)"; t.placeholder="Paste or type the question first."; return; }
+    mode = setup.customTask==1 ? "t1" : "t2";
+    tasks.push({task:setup.customTask, q:{id:"custom-"+Date.now(), custom:true, prompt:text, desc:setup.customTask==1?setup.customDesc.trim():"", hasImage: setup.customTask==1 && !!customImage}, answer:""});
+  }
+  current = {id:"t"+Date.now(), mode, timed:setup.timed, limit:LIMITS[mode]*60, startedAt:Date.now(), tasks, active:0, submitted:false};
+  saveCurrent(); nav("test");
+}
+function rubric(t){
+  if (t.task===1) return {head:"WRITING TASK 1", spend:"You should spend about 20 minutes on this task.", req:"Summarise the information by selecting and reporting the main features, and make comparisons where relevant.", min:"Write at least 150 words.", target:150};
+  return {head:"WRITING TASK 2", spend:"You should spend about 40 minutes on this task.", req:"Give reasons for your answer and include any relevant examples from your own knowledge or experience.", min:"Write at least 250 words.", target:250, pre:"Write about the following topic:"};
+}
+function renderTest(){
+  if (!current){ nav("home"); return; }
+  const c = current;
+  app.innerHTML = `<div class="testbar"><div class="wrap">
+     <div><div class="timer" id="timer">--:--</div></div>
+     <div class="timer-sub" id="tsub"></div>
+     ${c.tasks.length>1?`<div class="tasktabs" role="tablist">${c.tasks.map((t,i)=>`<button role="tab" data-i="${i}" aria-current="${c.active===i}">Task ${t.task} <small id="tw${i}">${words(t.answer)}w</small></button>`).join("")}</div>`:`<div style="margin-left:auto"></div>`}
+     <button class="btn primary" id="submit">Submit for marking</button>
+   </div></div>
+   <main class="wrap" style="padding-top:0">
+     <div id="tup"></div>
+     ${c.tasks.map((t,i)=>{ const r=rubric(t); return `<div class="desk" data-pane="${i}" ${c.active===i?"":"hidden"}>
+       <section class="qpaper"><div class="eyebrow">${r.head}${t.q.type?` · ${t.task===1?T1TYPES[t.q.type]:T2TYPES[t.q.type]}`:" · your question"}</div>
+         <p class="rubric">${r.spend}</p>${r.pre?`<p class="rubric" style="margin-bottom:0">${r.pre}</p>`:""}
+         <div class="prompt">${esc(t.q.prompt)}</div>
+         ${t.task===1&&!t.q.custom?`<p class="req">${r.req}</p>`:""}${t.task===2&&!t.q.custom?`<p class="req">${r.req}</p>`:""}<p class="req">${r.min}</p>
+         ${t.q.visual?`<div class="visual">${renderVisual(t.q.visual)}</div>`:""}
+         ${t.q.custom && t.q.hasImage && customImage?`<div class="visual"><img src="${customImage.url}" alt="Task visual you uploaded" style="border-radius:8px;border:1px solid var(--line)"></div>`:""}
+         ${t.q.custom && t.q.desc?`<div class="visual"><div class="vt" style="text-align:left">Key data you entered</div><div style="white-space:pre-wrap;font-size:14px">${esc(t.q.desc)}</div></div>`:""}
+       </section>
+       <section class="sheet"><div class="sheet-head"><span class="eyebrow">Answer sheet · Task ${t.task}</span><span class="wc" id="wc${i}"></span></div>
+         <textarea class="answer" id="ans${i}" spellcheck="false" autocomplete="off" aria-label="Your answer for Task ${t.task}" placeholder="Start writing here…">${esc(t.answer)}</textarea></section>
+     </div>`; }).join("")}
+     <p class="foot">Spell-check is off, as in the real test. Your writing is saved in this browser as you type.</p>
+   </main>`;
+  c.tasks.forEach((t,i)=>{
+    const ta=$("#ans"+i);
+    const upd=()=>{ t.answer=ta.value; const n=words(ta.value), tgt=rubric(t).target; const el=$("#wc"+i); el.className="wc "+(n>=tgt?"okc":"short"); el.innerHTML=`<b>${n}</b> / ${tgt} words`; const tw=$("#tw"+i); if(tw) tw.textContent=n+"w"; };
+    upd(); ta.addEventListener("input",()=>{ upd(); saveCurrent(); });
+  });
+  app.querySelectorAll(".tasktabs button").forEach(b=>b.addEventListener("click",()=>{ c.active=Number(b.dataset.i); saveCurrent();
+    app.querySelectorAll(".tasktabs button").forEach(x=>x.setAttribute("aria-current",String(x===b))); app.querySelectorAll("[data-pane]").forEach(p=>p.hidden = Number(p.dataset.pane)!==c.active); }));
+  $("#submit").addEventListener("click", submitTest);
+  if (tick) clearInterval(tick);
+  const update = () => {
+    const el=$("#timer"); if(!el){ clearInterval(tick); tick=null; return; }
+    const elapsed=(Date.now()-c.startedAt)/1000;
+    if (!c.timed){ el.textContent=fmtTime(elapsed); $("#tsub").textContent="Untimed · elapsed"; return; }
+    const left=c.limit-elapsed;
+    el.textContent=fmtTime(left);
+    el.className="timer"+(left<=0?" out":left<=300?" low":"");
+    const s=$("#tsub");
+    if (c.mode==="both") s.textContent = elapsed<20*60 ? "Suggested: move to Task 2 at 30:00 left" : "Remaining for both tasks";
+    else s.textContent="Remaining";
+    if (left<=0 && !c.timeUp){ c.timeUp=true; saveCurrent(); }
+    if (c.timeUp && !c.overtime){ c.tasks.forEach((_,i)=>{ const ta=$("#ans"+i); if(ta) ta.readOnly=true; });
+      const tu=$("#tup"); if (tu && !tu.firstChild){ tu.innerHTML=`<div class="banner bad" style="margin-top:16px"><b>Time is up.</b><span>Stop writing, as you would in the exam, and submit for marking.</span><span style="margin-left:auto;display:flex;gap:8px"><button class="btn small primary" id="sub2">Submit now</button><button class="btn small" id="ovt">Keep writing (not exam rules)</button></span></div>`;
+        $("#sub2").onclick=submitTest; $("#ovt").onclick=()=>{ c.overtime=true; saveCurrent(); tu.innerHTML=""; c.tasks.forEach((_,i)=>{ const ta=$("#ans"+i); if(ta) ta.readOnly=false; }); }; } }
+  };
+  update(); tick=setInterval(update, 500);
+}
+
+/* ---------------- Marking ---------------- */
+let resultCtx = null; // {test, results:[{status, data, error}], historyId}
+function submitTest(){
+  if (!current) return;
+  const c = current;
+  if (c.tasks.every(t=>!t.answer.trim())){ const tu=$("#tup"); tu.innerHTML=`<div class="banner warn" style="margin-top:16px">Both answer sheets are empty. Write something before submitting.</div>`; return; }
+  c.submitted = true; c.finishedAt = Date.now(); c.elapsed = Math.round((c.finishedAt-c.startedAt)/1000);
+  const test = JSON.parse(JSON.stringify(c));
+  const img = customImage?.blob || null;
+  current = null; saveCurrent();
+  resultCtx = {test, results: test.tasks.map(()=>({status:"pending"})), historyId:null, img};
+  nav("result");
+  test.tasks.forEach((t,i)=>gradeTask(i));
+}
+function descriptorText(task){
+  return CRIT[task].map(cr=>`### ${cr.name} (${cr.key})\n`+[9,8,7,6,5,4,3,2,1].map(b=>`Band ${b}: ${cr.d[b]}`).join("\n")).join("\n\n") + "\n\n" + BAND0;
+}
+function buildPrompt(t){
+  const r = rubric(t), n = words(t.answer);
+  const taskInfo = t.task===1
+    ? `IELTS Academic Writing Task 1.\nQuestion: ${t.q.prompt}\n${t.q.custom?"":r.req+"\n"}Write at least 150 words.\n\n` + (t.q.visual ? `THE VISUAL (exact data the candidate saw):\n${describeVisual(t.q.visual)}\n` : (t.q.desc?`KEY DATA supplied by the candidate:\n${t.q.desc}\n`:"") + (t.q.hasImage?"The task visual is attached as an image.\n":"") + (!t.q.desc && !t.q.hasImage ? "The visual was not provided; judge data accuracy only where it is evident from the question.\n":""))
+    : `IELTS Writing Task 2.\nQuestion: ${t.q.prompt}\nWrite at least 250 words.\n`;
+  return `You are a senior, fully certified IELTS Writing examiner. Mark the candidate's response strictly against the official IELTS Writing Task ${t.task} band descriptors (updated May 2023) quoted below. Be calibrated to real exam standards; do not inflate scores to encourage the candidate.
+
+MARKING RULES
+- Award each of the four criteria a WHOLE band from 0 to 9. A script must fully fit the positive features of the descriptor at a level to be awarded that band; negative features at a level limit the rating.
+- Responses of 20 words or fewer are rated Band 1 on every criterion. Any copied rubric/question wording must be discounted from credit.
+- ${t.task===1?"Under 150 words: penalise in Task Achievement (and Lexical Resource may be limited by insufficient evidence). Task 1 must have a clear overview of main trends/differences/stages for TA 6+ (a clear overview for 7+). Check figures against the data; inaccurate data limits TA. Opinions or reasons not in the visual are irrelevant.":"Under 250 words: penalise in Task Response. A clear position throughout is needed for TR 7+. Every part of the question must be addressed. Memorised, off-topic or formulaic content is penalised."}
+- Quote the candidate's own words as evidence. In "corrections", "original" MUST be an exact substring copied from the response so it can be highlighted.
+- The word count measured by the page is ${n} words.
+
+OFFICIAL BAND DESCRIPTORS — WRITING TASK ${t.task}
+${descriptorText(t.task)}
+
+TASK
+${taskInfo}
+CANDIDATE RESPONSE (between the markers)
+<<<RESPONSE
+${t.answer.trim() || "(blank)"}
+RESPONSE>>>
+
+Reply with ONLY one JSON object, no other text, in exactly this shape:
+{
+ "criteria": [
+  {"key":"${t.task===1?"TA":"TR"}","band":6,"summary":"2-3 sentences saying which descriptor level the script fits and why","evidence":["short quote or observation","..."],"toNextBand":"concrete advice tied to the next band's descriptor wording"},
+  {"key":"CC","band":6,"summary":"...","evidence":["..."],"toNextBand":"..."},
+  {"key":"LR","band":6,"summary":"...","evidence":["..."],"toNextBand":"..."},
+  {"key":"GRA","band":6,"summary":"...","evidence":["..."],"toNextBand":"..."}
+ ],
+ "overallComment":"3-4 sentences of examiner feedback",
+ "strengths":["2-4 items"],
+ "priorities":["the 3 most valuable things to fix next time, most important first"],
+ "corrections":[{"original":"exact text from response","corrected":"fixed version","type":"grammar|vocabulary|spelling|punctuation|cohesion|task","why":"short reason"}],
+ "upgrades":[{"original":"plain phrase from response","better":"more precise or less common alternative","why":"short reason"}]
+}
+Give up to 12 corrections (the most important errors first) and up to 6 upgrades. Use empty arrays if there are none.`;
+}
+async function gradeTask(i){
+  const ctx = resultCtx, t = ctx.test.tasks[i], slot = ctx.results[i];
+  if (!sample){ slot.status="error"; slot.error="Marking needs Claude, which isn't available in this view. Open this page on claude.ai while signed in, then use Try again."; renderResult(); return; }
+  slot.status="pending"; slot.error=null; renderResult();
+  try {
+    const opts = {cache:false};
+    if (t.task===1 && t.q.hasImage && ctx.img && imagesOK) opts.images = [ctx.img];
+    const data = await sample.json(buildPrompt(t), opts);
+    if (!data || !Array.isArray(data.criteria) || data.criteria.length<4) throw {code:"invalid_json"};
+    const order = CRIT[t.task].map(c=>c.key);
+    data.criteria = order.map((k,ix)=>{ const f = data.criteria.find(c=>String(c.key).toUpperCase()===k) || data.criteria[ix] || {}; return {...f, key:k, band:Math.max(0,Math.min(9,Math.round(Number(f.band)||0)))}; });
+    data.taskBand = roundBand(data.criteria.reduce((a,c)=>a+c.band,0)/4);
+    slot.status="done"; slot.data=data;
+  } catch(e){
+    slot.status="error";
+    slot.error = ({not_granted:"Claude wasn't allowed to mark this. Allow it from the page's permission prompt, then try again.",rate_limited:"You've hit a usage limit. Wait a few minutes, then try again.",invalid_json:"The examiner's reply came back in the wrong format. Try again.",session_expired:"Your session expired. Sign in again on claude.ai, then try again.",refused:"Claude declined to mark this response. Check the text and try again.",image_rejected:"The uploaded image couldn't be read. Try a PNG or JPG.",sampling_disabled:"Claude isn't available for this account."}[e?.code]) || "Marking failed because of a connection problem. Try again.";
+  }
+  maybeSaveHistory(); renderResult();
+}
+function overallOf(test, results){
+  const bands = test.tasks.map((t,i)=>results[i]?.data?.taskBand);
+  if (bands.some(b=>b==null)) return null;
+  if (test.tasks.length===1) return bands[0];
+  const t1 = bands[test.tasks.findIndex(t=>t.task===1)], t2 = bands[test.tasks.findIndex(t=>t.task===2)];
+  return roundBand((t1 + 2*t2)/3);
+}
+function maybeSaveHistory(){
+  const ctx = resultCtx; if (!ctx || ctx.fromHistory) return;
+  if (!ctx.results.every(r=>r.status==="done")) return;
+  const H = history();
+  const entry = {id:ctx.test.id, mode:ctx.test.mode, timed:ctx.test.timed, elapsed:ctx.test.elapsed, finishedAt:ctx.test.finishedAt, overall:overallOf(ctx.test, ctx.results),
+    tasks: ctx.test.tasks.map((t,i)=>({task:t.task, q:t.q, answer:t.answer, result:ctx.results[i].data}))};
+  const ix = H.findIndex(h=>h.id===entry.id); if (ix>=0) H[ix]=entry; else H.unshift(entry);
+  store.set("iwc.history", H.slice(0,60));
+}
+function openHistory(id){
+  const h = history().find(x=>x.id===id); if (!h) return;
+  resultCtx = {fromHistory:true, test:{id:h.id, mode:h.mode, timed:h.timed, elapsed:h.elapsed, finishedAt:h.finishedAt, tasks:h.tasks.map(t=>({task:t.task,q:t.q,answer:t.answer}))}, results:h.tasks.map(t=>({status:"done", data:t.result}))};
+  nav("result");
+}
+function highlightEssay(text, corrections){
+  let html = esc(text);
+  (corrections||[]).forEach((c,ix)=>{
+    const o = String(c.original||"").trim(); if (o.length<2) return;
+    const eo = esc(o); const pos = html.indexOf(eo); if (pos<0) return;
+    // skip if inside an existing mark tag
+    const before = html.slice(0,pos); if ((before.match(/<mark/g)||[]).length !== (before.match(/<\/mark>/g)||[]).length) return;
+    html = before + `<mark class="err" title="${esc((c.corrected?"→ "+c.corrected+" · ":"")+(c.why||""))}">${eo}<sup style="font-family:var(--f-mono);font-size:10px;color:var(--mark)">${ix+1}</sup></mark>` + html.slice(pos+eo.length);
+  });
+  return html;
+}
+function renderResult(){
+  const ctx = resultCtx; if (!ctx){ nav("home"); return; }
+  const {test, results} = ctx;
+  const overall = overallOf(test, results);
+  const done = results.filter(r=>r.status==="done").length;
+  const scroll = window.scrollY;
+  app.innerHTML = `<main class="wrap">
+   <div class="panel res-head">
+     <div class="bigband"><small>${test.tasks.length>1?"Overall writing band":"Task "+test.tasks[0].task+" band"}</small>${overall!=null?fmtBand(overall):results.some(r=>r.status==="pending")?`<span class="spinner" style="width:40px;height:40px;border-width:4px"></span>`:"–"}</div>
+     <div style="display:grid;gap:6px;min-width:0">
+       <div class="eyebrow">${fmtDate(test.finishedAt)} · ${test.timed?"timed":"untimed"} · ${fmtTime(test.elapsed||0)} used</div>
+       <h2 style="font-size:22px">${overall!=null ? bandWord(overall) : results.some(r=>r.status==="pending") ? `Marking ${test.tasks.length>1?"both tasks":"your answer"}… ${done}/${test.tasks.length} done` : "Marking incomplete"}</h2>
+       ${test.tasks.length>1?`<div class="muted" style="font-size:14px">${test.tasks.map((t,i)=>`Task ${t.task}: <b style="font-family:var(--f-mono);color:var(--ink)">${fmtBand(results[i].data?.taskBand)}</b>`).join(" · ")} · Task 2 is weighted double.</div>`:""}
+       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn small primary" id="again">New test</button><button class="btn small" id="tohist">All results</button></div>
+     </div>
+   </div>
+   ${test.tasks.map((t,i)=>taskResultHTML(t,i,results[i])).join("")}
+  </main>`;
+  window.scrollTo(0, scroll);
+  $("#again").onclick=()=>nav("home"); $("#tohist").onclick=()=>nav("history");
+  app.querySelectorAll("[data-retry]").forEach(b=>b.onclick=()=>gradeTask(Number(b.dataset.retry)));
+  app.querySelectorAll("[data-model]").forEach(b=>b.onclick=()=>modelAnswer(Number(b.dataset.model)));
+  // restore model answers already produced
+  (ctx.models||[]).forEach((m,i)=>{ if(m){ const el=$("#model"+i); if(el){ el.hidden=false; el.querySelector(".model").textContent=m.text; } } });
+}
+function bandWord(b){ return b>=8.5?"Expert user":b>=7.5?"Very good user":b>=6.5?"Good user":b>=5.5?"Competent user":b>=4.5?"Modest user":b>=3.5?"Limited user":"Extremely limited user"; }
+function taskResultHTML(t, i, r){
+  const crit = CRIT[t.task], n = words(t.answer), tgt = rubric(t).target;
+  const head = `<div class="tr-head"><div style="min-width:0"><div class="eyebrow">Writing Task ${t.task}${t.q.type?" · "+(t.task===1?T1TYPES[t.q.type]:T2TYPES[t.q.type]):" · your question"}</div>
+     <details class="q" style="margin-top:6px"><summary>${esc(t.q.prompt.split("\n")[0].slice(0,110))}${t.q.prompt.length>110?"…":""}</summary><div class="prompt" style="font-family:var(--f-serif);white-space:pre-wrap;margin-top:8px">${esc(t.q.prompt)}</div>${t.q.visual?`<div class="visual">${renderVisual(t.q.visual)}</div>`:""}</details></div>
+     <div style="text-align:right"><div class="tr-band">${r.status==="done"?fmtBand(r.data.taskBand):"–"}</div><div class="wc ${n>=tgt?"okc":"short"}"><b>${n}</b> words${n<tgt?` · under ${tgt}`:""}</div></div></div>`;
+  if (r.status==="pending") return `<section class="taskres"><div class="panel">${head}<div class="banner info"><span class="spinner"></span> The examiner is reading your answer against the Task ${t.task} descriptors. This usually takes 30–90 seconds.</div></div></section>`;
+  if (r.status==="error") return `<section class="taskres"><div class="panel">${head}<div class="banner bad"><span>${esc(r.error)}</span><button class="btn small" style="margin-left:auto" data-retry="${i}">Try again</button></div><div><div class="eyebrow" style="margin-bottom:8px">Your answer</div><div class="essay">${esc(t.answer)}</div></div></div></section>`;
+  const d = r.data;
+  return `<section class="taskres"><div class="panel">${head}
+    ${d.overallComment?`<p style="margin:0;font-size:15px;max-width:80ch">${esc(d.overallComment)}</p>`:""}
+    <div class="crit">${d.criteria.map((c,ci)=>`<div class="c"><div class="c-top"><h3>${crit[ci].name}</h3><b>${c.band}</b></div>
+       <div class="ticks" aria-hidden="true">${[1,2,3,4,5,6,7,8,9].map(k=>`<i class="${k<=c.band?"on":""}"></i>`).join("")}</div>
+       <p>${esc(c.summary)}</p>${Array.isArray(c.evidence)&&c.evidence.length?`<ul>${c.evidence.slice(0,4).map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:""}
+       ${c.toNextBand && c.band<9?`<div class="next"><b>To reach band ${c.band+1}:</b> ${esc(c.toNextBand)}</div>`:""}
+       <details><summary class="muted" style="font-size:12px;cursor:pointer">Band ${c.band} descriptor</summary><p class="muted" style="font-size:12px;margin-top:6px">${esc(crit[ci].d[c.band]||BAND0)}</p></details></div>`).join("")}</div>
+    <div class="cols2">
+      <div class="listbox"><h3>What worked</h3><ul>${(d.strengths||[]).map(s=>`<li>${esc(s)}</li>`).join("")||"<li class='muted'>None noted.</li>"}</ul></div>
+      <div class="listbox"><h3>Fix these first</h3><ol>${(d.priorities||[]).map(s=>`<li>${esc(s)}</li>`).join("")||"<li class='muted'>None noted.</li>"}</ol></div>
+    </div>
+    <div><div class="eyebrow" style="margin-bottom:8px">Your answer, marked${(d.corrections||[]).length?" · hover a highlight to see the fix":""}</div><div class="essay">${highlightEssay(t.answer, d.corrections)}</div></div>
+    ${(d.corrections||[]).length?`<div><div class="eyebrow" style="margin-bottom:8px">Corrections</div><div class="corr">${d.corrections.map((c,ci)=>`<div class="row"><div><span class="tag">${ci+1} · ${esc(c.type||"error")}</span><span class="from">${esc(c.original)}</span></div><div class="to">${esc(c.corrected)}</div>${c.why?`<div class="why">${esc(c.why)}</div>`:""}</div>`).join("")}</div></div>`:""}
+    ${(d.upgrades||[]).length?`<div><div class="eyebrow" style="margin-bottom:8px">Vocabulary upgrades</div><div class="corr">${d.upgrades.map(c=>`<div class="row"><div><span class="tag">instead of</span><span style="font-family:var(--f-serif)">${esc(c.original)}</span></div><div class="to">${esc(c.better)}</div>${c.why?`<div class="why">${esc(c.why)}</div>`:""}</div>`).join("")}</div></div>`:""}
+    <div><button class="btn" data-model="${i}" ${sample?"":"disabled"}>Show a band 9 model answer</button>
+      <div id="model${i}" hidden style="margin-top:14px"><div class="eyebrow" style="margin-bottom:8px">Model answer</div><div class="model"></div></div></div>
+  </div></section>`;
+}
+async function modelAnswer(i){
+  const ctx = resultCtx, t = ctx.test.tasks[i]; if (!sample) return;
+  ctx.models = ctx.models || [];
+  const box = $("#model"+i), out = box.querySelector(".model"), btn = app.querySelector(`[data-model="${i}"]`);
+  box.hidden=false; out.textContent="Thinking…"; btn.disabled=true;
+  const prompt = `Write a band 9 model answer for this IELTS ${t.task===1?"Academic Writing Task 1":"Writing Task 2"} question, as a top candidate would write it under exam conditions.
+${t.task===1?"Length 170–200 words. Structure: introduction paraphrasing the question, a clear overview of the main features, then two body paragraphs with accurate, well-selected figures and comparisons. No opinions.":"Length 270–310 words. Structure: introduction with a clear position, two or three well-developed body paragraphs with examples, and a conclusion. Answer every part of the question."}
+Question: ${t.q.prompt}
+${t.q.visual?"Data:\n"+describeVisual(t.q.visual):t.q.desc?"Data:\n"+t.q.desc:""}
+
+Output the essay as plain text with blank lines between paragraphs. After the essay, add a line "---" and then 3 short bullet points (starting with "• ") explaining what makes it band 9, referring to the four criteria.`;
+  try {
+    const opts = {onText:({text})=>{ out.textContent=text; }};
+    if (t.task===1 && t.q.hasImage && ctx.img && imagesOK) opts.images=[ctx.img];
+    const {text} = await sample(prompt, opts);
+    out.textContent=text; ctx.models[i]={text};
+  } catch(e){ out.textContent = e?.text || (e?.code==="rate_limited"?"Usage limit reached. Try again in a few minutes.":"Couldn't write a model answer this time. Try again."); }
+  btn.disabled=false; btn.textContent="Write another model answer";
+}
+
+/* ---------------- History & descriptors ---------------- */
+function renderHistory(){
+  const H = history();
+  app.innerHTML = `<main class="wrap"><div class="eyebrow">History</div><h1 style="font-size:28px;margin-top:4px">Your marked tests</h1>
+   <div class="home" style="margin-top:18px"><section class="panel">${H.length?`<div class="hist-list" style="margin-top:0">${H.map(histRow).join("")}</div>`:`<div class="empty" style="margin-top:0">No marked tests yet. Finish a test and submit it for marking to see it here.</div>`}
+   ${H.length?`<button class="btn small" id="clr" style="margin-top:14px">Clear history</button><span id="clrc"></span>`:""}</section>
+   <aside class="panel"><div class="eyebrow">Criterion averages</div>${progressHTML([]).length&&H.length?progressHTML(H).split('<div class="hist-list">')[0]:progressHTML(H)}</aside></div>
+   <p class="foot">History is kept in this browser only. Clearing site data or using another device starts a fresh history.</p></main>`;
+  app.querySelectorAll(".hist").forEach(b=>b.addEventListener("click",()=>openHistory(b.dataset.id)));
+  const c=$("#clr"); c && c.addEventListener("click",()=>{ $("#clrc").innerHTML=` <span style="font-size:13px">Delete all ${H.length} results? <button class="btn small" id="clry" style="border-color:var(--mark);color:var(--mark)">Delete</button></span>`; $("#clry").onclick=()=>{ store.del("iwc.history"); renderHistory(); }; });
+}
+function renderDesc(){
+  const tbl = task => `<div class="desc-tbl"><table><thead><tr><th>Band</th>${CRIT[task].map(c=>`<th>${c.name}</th>`).join("")}</tr></thead><tbody>${[9,8,7,6,5,4,3,2,1].map(b=>`<tr><td class="b">${b}</td>${CRIT[task].map(c=>`<td>${esc(c.d[b])}</td>`).join("")}</tr>`).join("")}<tr><td class="b">0</td><td colspan="4">${esc(BAND0)}</td></tr></tbody></table></div>`;
+  app.innerHTML = `<main class="wrap"><div class="eyebrow">Reference</div><h1 style="font-size:28px;margin-top:4px">Writing band descriptors</h1>
+   <p class="muted" style="max-width:70ch">The examiner uses these exact descriptors (IELTS Writing Band Descriptors, updated May 2023; Academic wording for Task 1). A script must fully fit the positive features of a band to be awarded it.</p>
+   <h2 style="font-size:20px;margin-top:24px">Task 1</h2>${tbl(1)}<h2 style="font-size:20px;margin-top:28px">Task 2</h2>${tbl(2)}</main>`;
+}
+
+nav(current && !current.submitted ? "home" : "home");
+})();
+</script>
