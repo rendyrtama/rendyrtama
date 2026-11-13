@@ -52,7 +52,7 @@ function renderAccount(){
   const el = $("#account"); if (!el) return;
   if (!sb){ el.innerHTML = ""; return; }
   if (!session){ el.innerHTML = `<button class="btn small primary" id="signin">Sign in with Google</button>`; $("#signin").onclick = signIn; return; }
-  el.innerHTML = `<span class="acct" title="${esc(session.user?.email||"")}"><b>${me?me.freeTests:"–"}</b> free · <b>${me?me.credits:"–"}</b> credits</span><button class="btn small" id="buybtn">Buy credits</button><button class="btn small ghost" id="signout">Sign out</button>`;
+  el.innerHTML = `<span class="acct" title="${esc(session.user?.email||"")}"><b>${me?me.freeTests:"–"}</b> free · <b>${me?me.credits:"–"}</b> ${me&&me.credits===1?"credit":"credits"}</span><button class="btn small" id="buybtn">Buy credits</button><button class="btn small ghost" id="signout">Sign out</button>`;
   $("#buybtn").onclick = () => nav("buy"); $("#signout").onclick = signOut;
 }
 function accountBanner(){
@@ -544,6 +544,7 @@ function drawQr(text){
 }
 function paid(r, p){
   me = {...(me||{}), freeTests:r.freeTests, credits:r.credits}; renderAccount();
+  if (view==="buy") renderBuy();   // refresh "You have … credits" behind the box
   const draft = pendingStart;
   showModal(`<h2>Payment received</h2><p>${p.credits} credit${p.credits>1?"s were":" was"} added. You now have <b>${r.credits}</b> credit${r.credits===1?"":"s"}.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">${draft?`<button class="btn primary" id="go">Start your test</button>`:`<button class="btn primary" id="go">Start a test</button>`}<button class="btn" data-close>Close</button></div>`);
