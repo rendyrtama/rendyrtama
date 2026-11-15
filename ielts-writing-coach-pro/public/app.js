@@ -8,6 +8,8 @@ import {
   renderVisual, describeVisual, rubric, FREE_TESTS, PACKAGES, rupiah
 } from "./core.js";
 import { legalHTML, footerHTML, LEGAL_PAGES } from "./legal.js";
+import { manualHTML } from "./manual.js";
+const PATH_PAGES = {...LEGAL_PAGES, manual:"Panduan"};   // pages with their own address, e.g. /manual
 
 /* ---------------- State ---------------- */
 const $ = (s, r=document) => r.querySelector(s);
@@ -44,7 +46,7 @@ async function refreshMe(){
   if (!session){ me = null; }
   else { try { me = await api("/api/me"); } catch(e){ me = null; if (e.status===401){ await sb.auth.signOut(); session = null; } } }
   renderAccount();
-  if (view==="home") renderHome(); else if (view==="buy") renderBuy(); else if (view==="account") renderAccountPage(); else if (view==="purchases") renderPurchases();
+  if (view==="home") renderHome(); else if (view==="buy") renderBuy(); else if (view==="account") renderAccountPage(); else if (view==="purchases") renderPurchases(); else if (view==="guide") renderGuide();
 }
 function signIn(){ if (sb) sb.auth.signInWithOAuth({provider:"google", options:{redirectTo: location.origin + location.pathname}}); }
 async function signOut(){ if (sb) await sb.auth.signOut(); session = null; me = null; renderAccount(); nav("home"); }
@@ -68,6 +70,7 @@ function renderAccount(){
         <button role="menuitem" data-go="purchases">Purchase history</button>
         <button role="menuitem" data-go="history">Test history</button>
         <button role="menuitem" data-go="buy">Buy credits</button>
+        <button role="menuitem" data-go="manual">User manual</button>
         <hr>
         <button role="menuitem" data-go="signout">Sign out</button>
       </div>
@@ -169,8 +172,12 @@ function nav(to){
   if (tick && to!=="test"){ clearInterval(tick); tick=null; }
   window.scrollTo(0,0);
   if (to==="home") renderHome(); else if (to==="guide") renderGuide(); else if (to==="buy") renderBuy(); else if (to==="account") renderAccountPage(); else if (to==="purchases") renderPurchases(); else if (to==="history") renderHistory(); else if (to==="desc") renderDesc(); else if (to==="test") renderTest(); else if (to==="result") renderResult();
-  else if (to in LEGAL_PAGES){ app.innerHTML = legalHTML(to); if (location.pathname !== "/"+to) window.history.replaceState(null, "", "/"+to); return; }
-  if ((location.hash && location.hash.slice(1) in LEGAL_PAGES) || location.pathname.replace(/^\/+|\/+$/g, "") in LEGAL_PAGES) window.history.replaceState(null, "", "/");
+  else if (to in PATH_PAGES){
+    if (to==="manual"){ const lang = store.get("iwc.manualLang","id"); app.innerHTML = manualHTML(lang);
+      app.querySelectorAll("[data-mlang]").forEach(b => b.onclick = () => { store.set("iwc.manualLang", b.dataset.mlang); nav("manual"); }); }
+    else app.innerHTML = legalHTML(to);
+    if (location.pathname !== "/"+to) window.history.replaceState(null, "", "/"+to); return; }
+  if ((location.hash && location.hash.slice(1) in PATH_PAGES) || location.pathname.replace(/^\/+|\/+$/g, "") in PATH_PAGES) window.history.replaceState(null, "", "/");
 }
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{ if (view==="test" && !confirmLeave()) return; nav(b.dataset.nav); }));
 function confirmLeave(){ return true; } // drafts are autosaved; the test can be resumed from Practice
@@ -484,7 +491,29 @@ async function modelAnswer(i){
 
 /* ---------------- Structure guide ---------------- */
 const guideState = {task:"t1ac", t1:"line", t2:"opinion"};
+function guideLocked(){
+  // The Structure guide is included for signed-in accounts that still have free tests or credits.
+  if (session && !me && !bootError){ app.innerHTML = `<main class="wrap"><p class="muted" style="margin-top:24px"><span class="spinner"></span> Checking your account…</p></main>`; return true; }
+  if (session && me && (me.freeTests + me.credits) > 0) return false;
+  const signedIn = !!session;
+  app.innerHTML = `<main class="wrap"><div class="eyebrow">Study</div><h1 style="font-size:28px;margin-top:4px">Structure guide</h1>
+    <section class="panel lock" style="margin-top:18px">
+      <div class="lock-ic" aria-hidden="true">🔒</div>
+      <h2 style="font-size:20px">${signedIn ? "Included while you have free tests or credits" : "Sign in to open the Structure guide"}</h2>
+      <p class="muted" style="max-width:62ch">${signedIn
+        ? "Your account has no free tests or credits left. Buy credits to open the guide again, together with new marked tests."
+        : `The guide is included with every account. New accounts get ${FREE_TESTS} free tests.`}</p>
+      <ul class="lock-list"><li>A paragraph plan for each Task 1 type: line, bar, pie, multiple graphs, table, process and maps</li><li>Letter plans for General Training (formal, semi-formal, informal)</li><li>Five Task 2 essay structures with worked plans</li><li>Checklists to review your writing before you submit</li></ul>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${signedIn
+        ? `<button class="btn primary" data-act="buy">Buy credits</button>`
+        : (sb ? `<button class="btn primary" data-act="signin">Sign in with Google</button>` : "")}
+        <button class="btn" id="tomanual">Read the user manual</button></div>
+    </section></main>`;
+  bindActs(); $("#tomanual").onclick = () => nav("manual");
+  return true;
+}
 function renderGuide(){
+  if (guideLocked()) return;
   const g = guideState, tabs = [["t1ac","Task 1 · Academic"],["t1gt","Task 1 · General Training"],["t2","Task 2 · Essays"]];
   let body = "";
   if (g.task==="t1ac"){
@@ -546,8 +575,8 @@ function renderDesc(){
 
 { const f = document.getElementById("sitefoot"); if (f) f.innerHTML = footerHTML(); }
 document.addEventListener("click", e => { const a = e.target.closest("a[data-legal]"); if (a && !e.ctrlKey && !e.metaKey){ e.preventDefault(); nav(a.dataset.legal); } });
-function routeFromUrl(){ const p = location.pathname.replace(/^\/+|\/+$/g, ""), h = location.hash.slice(1); return h in LEGAL_PAGES ? h : p in LEGAL_PAGES ? p : null; }
-window.addEventListener("popstate", () => { const r = routeFromUrl(); if (r) nav(r); else if (view in LEGAL_PAGES) nav("home"); });
+function routeFromUrl(){ const p = location.pathname.replace(/^\/+|\/+$/g, ""), h = location.hash.slice(1); return h in PATH_PAGES ? h : p in PATH_PAGES ? p : null; }
+window.addEventListener("popstate", () => { const r = routeFromUrl(); if (r) nav(r); else if (view in PATH_PAGES) nav("home"); });
 nav(routeFromUrl() || "home");
 boot();
 /* ---------------- Buy credits ---------------- */

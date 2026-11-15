@@ -4,6 +4,6 @@
     "api/model-answer.js": { "maxDuration": 120 }
   },
   "rewrites": [
-    { "source": "/(contact|terms|refund|privacy)", "destination": "/index.html" }
+    { "source": "/(contact|terms|refund|privacy|manual)", "destination": "/index.html" }
   ]
 }
