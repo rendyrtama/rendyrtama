@@ -449,8 +449,8 @@ const FREE_TESTS = 2;
 const PACKAGES = {
   task1:    {id:"task1",    credits:1,  idr:4900,  label:"1 task",          note:"Task 1 or Task 2"},
   full1:    {id:"full1",    credits:2,  idr:8900,  label:"1 full test",     note:"Task 1 + Task 2"},
-  bundle5:  {id:"bundle5",  credits:10, idr:34900, usd:"2.99", label:"5 full tests",  note:"about Rp 7,000 per full test"},
-  bundle10: {id:"bundle10", credits:20, idr:59900, usd:"4.99", label:"10 full tests", note:"about Rp 6,000 per full test"}
+  bundle5:  {id:"bundle5",  credits:10, idr:34900, usd:"4.99", label:"5 full tests",  note:"about Rp 7,000 per full test"},
+  bundle10: {id:"bundle10", credits:20, idr:59900, usd:"7.99", label:"10 full tests", note:"about Rp 6,000 per full test"}
 };
 const rupiah = n => "Rp " + Number(n).toLocaleString("id-ID");
 const tasksForMode = mode => mode==="both" ? [1,2] : mode==="t1" ? [1] : [2];
