@@ -124,6 +124,7 @@ function orderStatus(o){
   if (o.status==="paid") return `<span class="pill paid">Paid</span>`;
   if (o.status==="expired") return `<span class="pill off">Expired</span>`;
   if (o.status==="failed") return `<span class="pill off">Failed</span>`;
+  if (o.expires_at && o.provider==="midtrans") return qrisResumable(o) ? `<span class="pill wait">Waiting for payment</span>` : `<span class="pill off">Not completed</span>`;
   return Date.now() - new Date(o.created_at).getTime() > 30*60e3 ? `<span class="pill off">Not completed</span>` : `<span class="pill wait">Waiting for payment</span>`;
 }
 async function renderPurchases(){
@@ -133,7 +134,8 @@ async function renderPurchases(){
     <div id="orders"><p class="muted"><span class="spinner"></span> Loading your purchases…</p></div></main>`;
   let rows = [], err = null;
   try {
-    const r = await sb.from("orders").select("id,package,credits,provider,amount,currency,status,created_at,paid_at").order("created_at", {ascending:false}).limit(200);
+    let r = await sb.from("orders").select("id,package,credits,provider,amount,currency,status,created_at,paid_at,qr_url,qr_string,expires_at").order("created_at", {ascending:false}).limit(200);
+    if (r.error) r = await sb.from("orders").select("id,package,credits,provider,amount,currency,status,created_at,paid_at").order("created_at", {ascending:false}).limit(200);
     if (r.error) throw r.error; rows = r.data || [];
   } catch(e){ err = e; }
   const box = $("#orders"); if (!box) return;
@@ -142,8 +144,9 @@ async function renderPurchases(){
   const paid = rows.filter(o=>o.status==="paid");
   const money = o => o.currency==="IDR" ? rupiah(o.amount) : "US$" + Number(o.amount).toFixed(2);
   box.innerHTML = `<p style="margin:14px 0 0;font-size:14px"><b>${paid.length}</b> paid ${paid.length===1?"purchase":"purchases"} · <b>${paid.reduce((a,o)=>a+o.credits,0)}</b> credits bought</p>
-    <div class="tbl"><table><thead><tr><th>Date</th><th>Order</th><th>Package</th><th>Method</th><th class="num">Amount</th><th class="num">Credits</th><th>Status</th></tr></thead>
-    <tbody>${rows.map(o=>`<tr><td>${esc(fmtDate(o.created_at))}</td><td style="font-family:var(--f-mono);font-size:13px">${esc(o.id)}</td><td>${esc(PACKAGES[o.package]?.label||o.package)}</td><td>${o.provider==="paypal"?"PayPal":"QRIS"}</td><td class="num">${esc(money(o))}</td><td class="num">${o.credits}</td><td>${orderStatus(o)}</td></tr>`).join("")}</tbody></table></div>`;
+    <div class="tbl"><table><thead><tr><th>Date</th><th>Order</th><th>Package</th><th>Method</th><th class="num">Amount</th><th class="num">Credits</th><th>Status</th><th><span class="sr">Action</span></th></tr></thead>
+    <tbody>${rows.map(o=>`<tr><td>${esc(fmtDate(o.created_at))}</td><td style="font-family:var(--f-mono);font-size:13px">${esc(o.id)}</td><td>${esc(PACKAGES[o.package]?.label||o.package)}</td><td>${o.provider==="paypal"?"PayPal":"QRIS"}</td><td class="num">${esc(money(o))}</td><td class="num">${o.credits}</td><td>${orderStatus(o)}</td><td>${qrisResumable(o)?`<button class="btn small primary" data-resume="${esc(o.id)}">Continue payment</button>`:""}</td></tr>`).join("")}</tbody></table></div>`;
+  box.querySelectorAll("[data-resume]").forEach(b => b.onclick = () => openQrisBox(rows.find(o => o.id===b.dataset.resume)));
 }
 function accountBanner(){
   if (bootError) return `<div class="banner warn" style="margin-top:18px">${esc(bootError)} You can still practise and read the structure guide.</div>`;
@@ -598,6 +601,7 @@ function renderBuy(){
    ${need?`<div class="banner info" style="margin:14px 0"><span>Your ${pendingStart.mode==="both"?"full test":"test"} needs <b>${need} credit${need>1?"s":""}</b>. It starts automatically after you pay.</span></div>`:""}
    ${!session?`<div class="banner info" style="margin:14px 0"><span>Sign in with Google to buy credits.</span><button class="btn small primary" style="margin-left:auto" data-act="signin">Sign in with Google</button></div>`:""}
    ${bootError?`<div class="banner warn" style="margin:14px 0">${esc(bootError)}</div>`:""}
+   <div id="unpaid"></div>
    ${me?`<p style="margin:10px 0 0">You have <b>${me.freeTests}</b> free test${me.freeTests===1?"":"s"} and <b>${me.credits}</b> credit${me.credits===1?"":"s"}.</p>`:""}
    <div class="pkgs">${Object.values(PACKAGES).map(p=>`<section class="pkg${p.id===rec?" rec":""}">
       ${p.id===rec?`<span class="pkg-flag">Fits your test</span>`:p.id==="bundle10"?`<span class="pkg-flag alt">Best value</span>`:""}
@@ -609,6 +613,7 @@ function renderBuy(){
    <p class="foot">QRIS works with DANA, GoPay, OVO, ShopeePay, LinkAja and Indonesian mobile banking apps. PayPal is offered for the bundles, charged in US dollars. Prices include all fees.</p></main>`;
   bindActs();
   app.querySelectorAll("[data-qris]").forEach(b => b.onclick = () => payQris(b.dataset.qris));
+  showUnpaidReminder();
   if (session && cfg?.paypalClientId) loadPayPal().then(pp => {
     Object.values(PACKAGES).filter(p=>p.usd).forEach(p => {
       const el = $("#pp-"+p.id); if (!el) return; let ourId = null;
@@ -620,9 +625,21 @@ function renderBuy(){
     });
   }).catch(()=>{});
 }
-function showModal(html){
+async function showUnpaidReminder(){
+  if (!sb || !session) return;
+  try {
+    const r = await sb.from("orders").select("id,package,provider,status,qr_url,qr_string,expires_at").eq("provider","midtrans").eq("status","pending")
+      .gt("expires_at", new Date().toISOString()).order("created_at", {ascending:false}).limit(1);
+    const o = r.data?.[0]; if (r.error || !qrisResumable(o) || view!=="buy") return;
+    const slot = $("#unpaid"); if (!slot) return;
+    slot.innerHTML = `<div class="banner warn" style="margin:14px 0"><span>You have an unpaid QRIS payment: <b>${esc(PACKAGES[o.package]?.label||o.package)}</b>, ${rupiah(PACKAGES[o.package]?.idr||0)}. Its code is still valid.</span><button class="btn small primary" style="margin-left:auto" id="resume-qris">Continue payment</button></div>`;
+    $("#resume-qris").onclick = () => openQrisBox(o);
+  } catch {}
+}
+function showModal(html, opts = {}){
   let m = $("#modal");
-  if (!m){ m = document.createElement("div"); m.id = "modal"; m.className = "modal"; m.innerHTML = `<div class="modal-box" role="dialog" aria-modal="true"></div>`; document.body.appendChild(m); m.addEventListener("click", e => { if (e.target===m) closeModal(); }); }
+  if (!m){ m = document.createElement("div"); m.id = "modal"; m.className = "modal"; m.innerHTML = `<div class="modal-box" role="dialog" aria-modal="true"></div>`; document.body.appendChild(m); m.addEventListener("click", e => { if (e.target===m && m.dataset.sticky!=="1") closeModal(); }); }
+  m.dataset.sticky = opts.sticky ? "1" : "";   // a QR payment box only closes with its own button
   m.querySelector(".modal-box").innerHTML = html; m.hidden = false;
   m.querySelectorAll("[data-close]").forEach(b => b.onclick = closeModal);
   return m;
@@ -630,24 +647,34 @@ function showModal(html){
 function closeModal(){ clearInterval(pollTimer); clearInterval(countdownTimer); const m = $("#modal"); if (m) m.hidden = true; }
 async function payQris(pkgId){
   const p = PACKAGES[pkgId];
-  showModal(`<h2>Pay ${rupiah(p.idr)}</h2><p class="muted"><span class="spinner"></span> Creating your QRIS code…</p>`);
+  showModal(`<h2>Pay ${rupiah(p.idr)}</h2><p class="muted"><span class="spinner"></span> Creating your QRIS code…</p>`, {sticky:true});
   let r;
   try { r = await api("/api/pay/midtrans-create", {pkg:pkgId}); }
   catch(e){ showModal(`<h2>Couldn't create the payment</h2><p>${esc(e.error)}</p><button class="btn" data-close>Close</button>`); return; }
+  openQrisBox({id:r.orderId, package:pkgId, qr_url:r.qrUrl, qr_string:r.qrString, expires_at:r.expiresAt});
+}
+/* Is this unpaid QRIS order's code still usable? */
+const qrisResumable = o => o && o.provider==="midtrans" && o.status==="pending" && (o.qr_url || o.qr_string) && o.expires_at && new Date(o.expires_at).getTime() > Date.now() + 20e3;
+/* Shows a QRIS code (new or reopened) and waits for the payment. */
+function openQrisBox(o){
+  const p = PACKAGES[o.package], pkgId = o.package;
+  clearInterval(pollTimer); clearInterval(countdownTimer);
   const m = showModal(`<div class="eyebrow">QRIS · ${esc(p.label)}</div><h2 style="margin:4px 0 2px">${rupiah(p.idr)}</h2>
-    <p class="muted" style="font-size:13px;margin:0 0 12px">Order ${esc(r.orderId)}</p>
-    <div class="qr" id="qr">${r.qrUrl?`<img src="${esc(r.qrUrl)}" alt="QRIS payment code" width="240" height="240">`:""}</div>
+    <p class="muted" style="font-size:13px;margin:0 0 12px">Order ${esc(o.id)}</p>
+    <div class="qr" id="qr">${o.qr_url?`<img src="${esc(o.qr_url)}" alt="QRIS payment code" width="240" height="240">`:""}</div>
     <p style="font-size:14px">Open DANA, GoPay, OVO, ShopeePay or your banking app, choose <b>Scan / QRIS</b>, and scan this code. Credits are added as soon as the payment arrives.</p>
     ${cfg?.midtransProduction?"":`<p class="banner warn" style="font-size:13px">Test mode: no real money. Pay using the Midtrans sandbox simulator.</p>`}
     <p id="paystate" class="muted"><span class="spinner"></span> Waiting for payment · <span id="paytime">15:00</span> left</p>
-    <button class="btn" data-close>Cancel</button>`);
-  if (!r.qrUrl && r.qrString) drawQr(r.qrString);
-  const until = r.expiresAt ? new Date(r.expiresAt.replace(" ", "T") + "+07:00").getTime() : Date.now() + 15*60e3;
-  countdownTimer = setInterval(() => { const el = $("#paytime"); if (el) el.textContent = fmtTime((until-Date.now())/1000); }, 1000);
+    <p class="muted" style="font-size:12px">Closed this by accident? Reopen it from <b>Purchase history</b> in your profile menu, or from the Credits page, until the code expires.</p>
+    <button class="btn" data-close>Close</button>`, {sticky:true});
+  if (!o.qr_url && o.qr_string) drawQr(o.qr_string);
+  const until = o.expires_at ? new Date(String(o.expires_at).includes("T") ? o.expires_at : String(o.expires_at).replace(" ", "T") + "+07:00").getTime() : Date.now() + 15*60e3;
+  const tickClock = () => { const el = $("#paytime"); if (el) el.textContent = fmtTime((until-Date.now())/1000); };
+  tickClock(); countdownTimer = setInterval(tickClock, 1000);
   pollTimer = setInterval(async () => {
     if (m.hidden) return closeModal();
     try {
-      const s = await api("/api/order?id=" + encodeURIComponent(r.orderId));
+      const s = await api("/api/order?id=" + encodeURIComponent(o.id));
       if (s.status==="paid"){ closeModal(); paid(s, p); }
       else if (s.status==="expired" || s.status==="failed" || Date.now() > until + 60e3){ clearInterval(pollTimer); clearInterval(countdownTimer); $("#paystate").innerHTML = `This QR code has expired. <button class="btn small" id="newqr">Make a new code</button>`; $("#newqr").onclick = () => payQris(pkgId); }
     } catch {}
