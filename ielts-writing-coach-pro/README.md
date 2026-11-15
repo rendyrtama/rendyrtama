@@ -9,8 +9,8 @@ IELTS Academic and General Training writing practice, marked by Claude against t
 |---|---|---|---|
 | 1 task | 1 | Rp 4,900 | – |
 | 1 full test (Task 1 + 2) | 2 | Rp 8,900 | – |
-| 5 full tests | 10 | Rp 34,900 | US$2.99 |
-| 10 full tests | 20 | Rp 59,900 | US$4.99 |
+| 5 full tests | 10 | Rp 34,900 | US$4.99 |
+| 10 full tests | 20 | Rp 59,900 | US$7.99 |
 
 Prices are set in `public/core.js` (`PACKAGES`, `FREE_TESTS`). The server always uses these values, so a user can't change a price from the browser.
 
