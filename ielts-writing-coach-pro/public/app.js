@@ -195,7 +195,7 @@ function renderHome(){
   app.innerHTML = `<main class="wrap"><div class="home">
    <section>
     <div class="hero"><div class="eyebrow">${setup.module==="general"?"General Training":"Academic"} Writing practice</div><h1>Sit a writing test, then get it marked band by band.</h1>
-     <p>Pick a random exam-style question or paste one you found. Write against the clock, and Claude marks it on the four official criteria with corrections and a path to the next band.</p></div>
+     <p>Pick a random exam-style question or paste one you found. Write against the clock, and the AI examiner marks it on the four official criteria with corrections and a path to the next band.</p></div>
     ${current && !current.submitted ? `<div class="banner info" style="margin-top:18px"><span>You have an unfinished ${current.mode==="both"?"full test":current.mode==="t1"?"Task 1":"Task 2"} from ${fmtDate(current.startedAt)}.</span><span style="margin-left:auto;display:flex;gap:8px"><button class="btn small primary" id="resume">Resume</button><button class="btn small" id="discard">Discard</button></span></div>`:""}
     ${accountBanner()}
     <div class="panel setup" style="margin-top:20px">
@@ -220,7 +220,7 @@ function renderHome(){
     <div class="panel"><div class="eyebrow">Your progress</div>${progressHTML(H)}</div>
     <div class="panel"><div class="eyebrow">How marking works</div>
      <ol class="steps"><li>Each task gets a whole band (0–9) on four criteria, matched against the official descriptors.</li><li>Task band = average of the four, rounded to the nearest half band.</li><li>Overall writing band: Task 2 counts twice as much as Task 1.</li><li>Under 150 / 250 words is penalised in Task Achievement / Response, as examiners do.</li></ol>
-     <p class="muted" style="font-size:12px;margin:12px 0 0">Scores are estimates from an AI examiner (Claude), not official IELTS results.</p></div>
+     <p class="muted" style="font-size:12px;margin:12px 0 0">Scores are estimates from an AI examiner, not official IELTS results.</p></div>
    </aside></div>
    <p class="foot">Practice questions are original and written in the style of common exam topics. All figures in charts, tables and maps are invented for practice. Not affiliated with or endorsed by IELTS, the British Council, IDP or Cambridge University Press &amp; Assessment.</p></main>`;
   app.querySelectorAll(".seg button,.chips button").forEach(b=>b.addEventListener("click",()=>{

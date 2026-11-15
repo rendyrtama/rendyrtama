@@ -97,7 +97,7 @@ const PAGES = {
         <li>Penyimpanan lokal di browser (draf dan riwayat latihan) di perangkat Anda.</li></ul>
       <h3>Tujuan penggunaan</h3><p>Menyediakan akun dan kredit, menilai esai, menampilkan riwayat latihan, memproses pembayaran, mencegah penyalahgunaan, dan memberikan dukungan.</p>
       <h3>Pihak yang memproses data</h3><ul>
-        <li><b>Anthropic</b> (model AI Claude): menerima soal dan esai untuk dinilai.</li>
+        <li><b>Anthropic</b> (penyedia model AI): menerima soal dan esai untuk dinilai.</li>
         <li><b>Supabase</b> (basis data dan login) dan <b>Vercel</b> (hosting).</li>
         <li><b>Google</b> (login), <b>Midtrans</b> dan <b>PayPal</b> (pembayaran).</li></ul>
       <p>Kami tidak menjual data pribadi Anda.</p>
@@ -111,7 +111,7 @@ const PAGES = {
         <li>Browser storage (drafts and practice history) on your own device.</li></ul>
       <h3>How we use it</h3><p>To provide your account and credits, mark essays, show your practice history, process payments, prevent abuse and give support.</p>
       <h3>Who processes data for us</h3><ul>
-        <li><b>Anthropic</b> (Claude AI): receives questions and essays to mark them.</li>
+        <li><b>Anthropic</b> (AI model provider): receives questions and essays to mark them.</li>
         <li><b>Supabase</b> (database and sign-in) and <b>Vercel</b> (hosting).</li>
         <li><b>Google</b> (sign-in), <b>Midtrans</b> and <b>PayPal</b> (payments).</li></ul>
       <p>We do not sell your personal data.</p>
