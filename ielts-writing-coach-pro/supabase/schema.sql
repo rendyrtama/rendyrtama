@@ -56,6 +56,11 @@ create table if not exists public.orders (
 );
 create index if not exists orders_user_idx on public.orders (user_id, created_at desc);
 
+-- QRIS code kept so an unpaid payment can be reopened from Purchase history (added later; safe to re-run).
+alter table public.orders add column if not exists qr_url text;
+alter table public.orders add column if not exists qr_string text;
+alter table public.orders add column if not exists expires_at timestamptz;
+
 -- Row-level security: users may read only their own rows; nobody writes from the browser.
 alter table public.profiles enable row level security;
 alter table public.tests    enable row level security;
