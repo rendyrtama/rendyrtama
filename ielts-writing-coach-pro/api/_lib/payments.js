@@ -34,11 +34,16 @@ export async function midtransChargeQris(orderId, amountIdr) {
 
 export const midtransStatus = orderId => midtrans(`/v2/${encodeURIComponent(orderId)}/status`).then(r => r.data);
 
-/** Signature Midtrans puts on notifications: SHA512(order_id + status_code + gross_amount + server_key). */
+/** Signature Midtrans puts on notifications: SHA512(order_id + status_code + gross_amount + server_key).
+ *  Midtrans signs with the account's main server key. If the app uses a limited ("scoped") key,
+ *  set MIDTRANS_NOTIFICATION_KEY to the main key so the signature can be checked too. */
 export function midtransSignatureOk(n) {
-  const expected = crypto.createHash("sha512").update(`${n.order_id}${n.status_code}${n.gross_amount}${env("MIDTRANS_SERVER_KEY")}`).digest("hex");
   const got = String(n.signature_key || "");
-  return got.length === expected.length && crypto.timingSafeEqual(Buffer.from(got), Buffer.from(expected));
+  const keys = [process.env.MIDTRANS_NOTIFICATION_KEY, process.env.MIDTRANS_SERVER_KEY].filter(Boolean);
+  return keys.some(key => {
+    const expected = crypto.createHash("sha512").update(`${n.order_id}${n.status_code}${n.gross_amount}${key}`).digest("hex");
+    return got.length === expected.length && crypto.timingSafeEqual(Buffer.from(got), Buffer.from(expected));
+  });
 }
 
 /** Applies a Midtrans status object to our order. Returns the new order status. */
