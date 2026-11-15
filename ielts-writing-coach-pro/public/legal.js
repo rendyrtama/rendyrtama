@@ -130,5 +130,5 @@ export function legalHTML(page) {
 
 export function footerHTML() {
   return `<div class="wrap"><span>© 2026 ${esc(COMPANY.legalName)}</span>
-    <nav aria-label="Footer">${Object.entries(LEGAL_PAGES).map(([k, l]) => `<a href="/${k}" data-legal="${k}">${l}</a>`).join("")}</nav></div>`;
+    <nav aria-label="Footer"><a href="/manual" data-legal="manual">Panduan</a>${Object.entries(LEGAL_PAGES).map(([k, l]) => `<a href="/${k}" data-legal="${k}">${l}</a>`).join("")}</nav></div>`;
 }
