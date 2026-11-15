@@ -44,16 +44,103 @@ async function refreshMe(){
   if (!session){ me = null; }
   else { try { me = await api("/api/me"); } catch(e){ me = null; if (e.status===401){ await sb.auth.signOut(); session = null; } } }
   renderAccount();
-  if (view==="home") renderHome(); else if (view==="buy") renderBuy();
+  if (view==="home") renderHome(); else if (view==="buy") renderBuy(); else if (view==="account") renderAccountPage(); else if (view==="purchases") renderPurchases();
 }
 function signIn(){ if (sb) sb.auth.signInWithOAuth({provider:"google", options:{redirectTo: location.origin + location.pathname}}); }
 async function signOut(){ if (sb) await sb.auth.signOut(); session = null; me = null; renderAccount(); nav("home"); }
+const userName = () => session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name || (session?.user?.email||"").split("@")[0] || "Account";
+const userPic = () => session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture || "";
+function avatarHTML(cls=""){
+  const pic = userPic(), initial = esc(userName().trim().charAt(0).toUpperCase() || "?");
+  return pic ? `<img class="avatar ${cls}" src="${esc(pic)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'avatar ${cls}',textContent:'${initial}'}))">` : `<span class="avatar ${cls}">${initial}</span>`;
+}
+const creditsText = () => me ? `${me.freeTests} free · ${me.credits} ${me.credits===1?"credit":"credits"}` : "–";
 function renderAccount(){
   const el = $("#account"); if (!el) return;
   if (!sb){ el.innerHTML = ""; return; }
   if (!session){ el.innerHTML = `<button class="btn small primary" id="signin">Sign in with Google</button>`; $("#signin").onclick = signIn; return; }
-  el.innerHTML = `<span class="acct" title="${esc(session.user?.email||"")}"><b>${me?me.freeTests:"–"}</b> free · <b>${me?me.credits:"–"}</b> ${me&&me.credits===1?"credit":"credits"}</span><button class="btn small" id="buybtn">Buy credits</button><button class="btn small ghost" id="signout">Sign out</button>`;
-  $("#buybtn").onclick = () => nav("buy"); $("#signout").onclick = signOut;
+  el.innerHTML = `<span class="acct"><b>${me?me.freeTests:"–"}</b> free · <b>${me?me.credits:"–"}</b> ${me&&me.credits===1?"credit":"credits"}</span>
+    <div class="acct-wrap">
+      <button class="avatar-btn" id="acctbtn" aria-haspopup="menu" aria-expanded="false" aria-controls="acctmenu" title="Your account">${avatarHTML()}<span class="caret" aria-hidden="true">▼</span></button>
+      <div class="menu" id="acctmenu" role="menu" hidden>
+        <div class="menu-head">${avatarHTML()}<div class="who"><b>${esc(userName())}</b><span>${esc(session.user?.email||"")}</span></div></div>
+        <button role="menuitem" data-go="account">Account <small>${esc(creditsText())}</small></button>
+        <button role="menuitem" data-go="purchases">Purchase history</button>
+        <button role="menuitem" data-go="history">Test history</button>
+        <button role="menuitem" data-go="buy">Buy credits</button>
+        <hr>
+        <button role="menuitem" data-go="signout">Sign out</button>
+      </div>
+    </div>`;
+  const btn = $("#acctbtn"), menu = $("#acctmenu");
+  const close = () => { menu.hidden = true; btn.setAttribute("aria-expanded","false"); };
+  btn.onclick = (e) => { e.stopPropagation(); const open = menu.hidden; menu.hidden = !open; btn.setAttribute("aria-expanded", String(open)); if (open) menu.querySelector("button")?.focus(); };
+  menu.querySelectorAll("[data-go]").forEach(b => b.onclick = () => { close(); const g = b.dataset.go; if (g==="signout") signOut(); else nav(g); });
+  menu.addEventListener("keydown", e => { if (e.key==="Escape"){ close(); btn.focus(); } });
+}
+document.addEventListener("click", e => { const m = document.getElementById("acctmenu"); if (m && !m.hidden && !e.target.closest(".acct-wrap")) { m.hidden = true; document.getElementById("acctbtn")?.setAttribute("aria-expanded","false"); } });
+document.addEventListener("keydown", e => { const m = document.getElementById("acctmenu"); if (e.key==="Escape" && m && !m.hidden){ m.hidden = true; document.getElementById("acctbtn")?.setAttribute("aria-expanded","false"); } });
+
+/* ---------------- Account and purchase history ---------------- */
+function needSignIn(title){
+  app.innerHTML = `<main class="wrap"><div class="eyebrow">Account</div><h1 style="font-size:28px;margin-top:4px">${title}</h1>
+    <div class="banner info" style="margin-top:16px"><span>Sign in with Google to see this page.</span>${sb?`<button class="btn small primary" style="margin-left:auto" data-act="signin">Sign in with Google</button>`:""}</div></main>`;
+  bindActs();
+}
+async function renderAccountPage(){
+  if (!session) return needSignIn("Your account");
+  const H = history(), marked = H.filter(h=>h.tasks.every(t=>t.result)).length;
+  app.innerHTML = `<main class="wrap"><div class="eyebrow">Account</div><h1 style="font-size:28px;margin-top:4px">Your account</h1>
+    <div class="acct-grid">
+      <section class="panel">
+        <div class="profile">${avatarHTML("lg")}<div class="who"><h2>${esc(userName())}</h2><div class="muted" style="overflow-wrap:anywhere">${esc(session.user?.email||"")}</div></div></div>
+        <dl class="kv">
+          <dt>Sign-in</dt><dd>Google</dd>
+          <dt>Member since</dt><dd id="since">–</dd>
+          <dt>Tests on this device</dt><dd>${H.length} (${marked} marked)</dd>
+        </dl>
+      </section>
+      <section class="panel">
+        <div class="eyebrow">Balance</div>
+        <div class="bal"><div><b>${me?me.freeTests:"–"}</b><span>free tests left</span></div><div><b>${me?me.credits:"–"}</b><span>${me&&me.credits===1?"credit":"credits"} · 1 credit = 1 task</span></div></div>
+        <div class="links">
+          <button class="btn primary" data-go="buy">Buy credits</button>
+          <button class="btn" data-go="purchases">Purchase history</button>
+          <button class="btn" data-go="history">Test history</button>
+        </div>
+      </section>
+    </div>
+    <p class="foot">Need help with a payment or your account? See <a href="/contact" data-legal="contact">Kontak</a>.</p></main>`;
+  app.querySelectorAll("[data-go]").forEach(b => b.onclick = () => nav(b.dataset.go));
+  try {
+    const { data } = await sb.from("profiles").select("created_at").eq("id", session.user.id).maybeSingle();
+    const el = $("#since"); if (el && data?.created_at) el.textContent = new Date(data.created_at).toLocaleDateString(undefined, {day:"numeric", month:"long", year:"numeric"});
+  } catch {}
+}
+function orderStatus(o){
+  if (o.status==="paid") return `<span class="pill paid">Paid</span>`;
+  if (o.status==="expired") return `<span class="pill off">Expired</span>`;
+  if (o.status==="failed") return `<span class="pill off">Failed</span>`;
+  return Date.now() - new Date(o.created_at).getTime() > 30*60e3 ? `<span class="pill off">Not completed</span>` : `<span class="pill wait">Waiting for payment</span>`;
+}
+async function renderPurchases(){
+  if (!session) return needSignIn("Purchase history");
+  app.innerHTML = `<main class="wrap"><div class="eyebrow">Account</div><h1 style="font-size:28px;margin-top:4px">Purchase history</h1>
+    <p class="muted" style="max-width:70ch">Every payment you started, newest first. Quote the order number when you contact us about a payment.</p>
+    <div id="orders"><p class="muted"><span class="spinner"></span> Loading your purchases…</p></div></main>`;
+  let rows = [], err = null;
+  try {
+    const r = await sb.from("orders").select("id,package,credits,provider,amount,currency,status,created_at,paid_at").order("created_at", {ascending:false}).limit(200);
+    if (r.error) throw r.error; rows = r.data || [];
+  } catch(e){ err = e; }
+  const box = $("#orders"); if (!box) return;
+  if (err){ box.innerHTML = `<div class="banner bad">Couldn't load your purchases. Reload the page to try again.</div>`; return; }
+  if (!rows.length){ box.innerHTML = `<div class="empty">No purchases yet. When you buy credits, each payment appears here with its order number and status.</div><button class="btn primary" style="margin-top:14px" data-go="buy">Buy credits</button>`; box.querySelector("[data-go]").onclick = () => nav("buy"); return; }
+  const paid = rows.filter(o=>o.status==="paid");
+  const money = o => o.currency==="IDR" ? rupiah(o.amount) : "US$" + Number(o.amount).toFixed(2);
+  box.innerHTML = `<p style="margin:14px 0 0;font-size:14px"><b>${paid.length}</b> paid ${paid.length===1?"purchase":"purchases"} · <b>${paid.reduce((a,o)=>a+o.credits,0)}</b> credits bought</p>
+    <div class="tbl"><table><thead><tr><th>Date</th><th>Order</th><th>Package</th><th>Method</th><th class="num">Amount</th><th class="num">Credits</th><th>Status</th></tr></thead>
+    <tbody>${rows.map(o=>`<tr><td>${esc(fmtDate(o.created_at))}</td><td style="font-family:var(--f-mono);font-size:13px">${esc(o.id)}</td><td>${esc(PACKAGES[o.package]?.label||o.package)}</td><td>${o.provider==="paypal"?"PayPal":"QRIS"}</td><td class="num">${esc(money(o))}</td><td class="num">${o.credits}</td><td>${orderStatus(o)}</td></tr>`).join("")}</tbody></table></div>`;
 }
 function accountBanner(){
   if (bootError) return `<div class="banner warn" style="margin-top:18px">${esc(bootError)} You can still practise and read the structure guide.</div>`;
@@ -81,7 +168,7 @@ function nav(to){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current", String(b.dataset.nav===(to==="result"?"history":to==="test"?"home":to))));
   if (tick && to!=="test"){ clearInterval(tick); tick=null; }
   window.scrollTo(0,0);
-  if (to==="home") renderHome(); else if (to==="guide") renderGuide(); else if (to==="buy") renderBuy(); else if (to==="history") renderHistory(); else if (to==="desc") renderDesc(); else if (to==="test") renderTest(); else if (to==="result") renderResult();
+  if (to==="home") renderHome(); else if (to==="guide") renderGuide(); else if (to==="buy") renderBuy(); else if (to==="account") renderAccountPage(); else if (to==="purchases") renderPurchases(); else if (to==="history") renderHistory(); else if (to==="desc") renderDesc(); else if (to==="test") renderTest(); else if (to==="result") renderResult();
   else if (to in LEGAL_PAGES){ app.innerHTML = legalHTML(to); if (location.pathname !== "/"+to) window.history.replaceState(null, "", "/"+to); return; }
   if ((location.hash && location.hash.slice(1) in LEGAL_PAGES) || location.pathname.replace(/^\/+|\/+$/g, "") in LEGAL_PAGES) window.history.replaceState(null, "", "/");
 }
