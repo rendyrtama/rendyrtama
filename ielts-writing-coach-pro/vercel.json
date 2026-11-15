@@ -2,5 +2,8 @@
   "functions": {
     "api/grade.js": { "maxDuration": 120 },
     "api/model-answer.js": { "maxDuration": 120 }
-  }
+  },
+  "rewrites": [
+    { "source": "/(contact|terms|refund|privacy)", "destination": "/index.html" }
+  ]
 }

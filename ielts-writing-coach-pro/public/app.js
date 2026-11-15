@@ -52,7 +52,7 @@ function renderAccount(){
   const el = $("#account"); if (!el) return;
   if (!sb){ el.innerHTML = ""; return; }
   if (!session){ el.innerHTML = `<button class="btn small primary" id="signin">Sign in with Google</button>`; $("#signin").onclick = signIn; return; }
-  el.innerHTML = `<span class="acct" title="${esc(session.user?.email||"")}"><b>${me?me.freeTests:"–"}</b> free · <b>${me?me.credits:"–"}</b> credits</span><button class="btn small" id="buybtn">Buy credits</button><button class="btn small ghost" id="signout">Sign out</button>`;
+  el.innerHTML = `<span class="acct" title="${esc(session.user?.email||"")}"><b>${me?me.freeTests:"–"}</b> free · <b>${me?me.credits:"–"}</b> ${me&&me.credits===1?"credit":"credits"}</span><button class="btn small" id="buybtn">Buy credits</button><button class="btn small ghost" id="signout">Sign out</button>`;
   $("#buybtn").onclick = () => nav("buy"); $("#signout").onclick = signOut;
 }
 function accountBanner(){
@@ -82,8 +82,8 @@ function nav(to){
   if (tick && to!=="test"){ clearInterval(tick); tick=null; }
   window.scrollTo(0,0);
   if (to==="home") renderHome(); else if (to==="guide") renderGuide(); else if (to==="buy") renderBuy(); else if (to==="history") renderHistory(); else if (to==="desc") renderDesc(); else if (to==="test") renderTest(); else if (to==="result") renderResult();
-  else if (to in LEGAL_PAGES){ app.innerHTML = legalHTML(to); if (location.hash !== "#"+to) window.history.replaceState(null, "", "#"+to); return; }
-  if (location.hash && location.hash.slice(1) in LEGAL_PAGES) window.history.replaceState(null, "", location.pathname);
+  else if (to in LEGAL_PAGES){ app.innerHTML = legalHTML(to); if (location.pathname !== "/"+to) window.history.replaceState(null, "", "/"+to); return; }
+  if ((location.hash && location.hash.slice(1) in LEGAL_PAGES) || location.pathname.replace(/^\/+|\/+$/g, "") in LEGAL_PAGES) window.history.replaceState(null, "", "/");
 }
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{ if (view==="test" && !confirmLeave()) return; nav(b.dataset.nav); }));
 function confirmLeave(){ return true; } // drafts are autosaved; the test can be resumed from Practice
@@ -156,7 +156,7 @@ function progressHTML(H){
 }
 function histRow(h){
   const label = (h.module==="general"?"GT · ":"") + h.tasks.map(t=>typeLabel(t)?typeLabel(t).split(" (")[0]:`Task ${t.task} (own)`).join(" + ");
-  return `<button class="hist" data-id="${h.id}"><span class="t">${esc(label)}</span><span class="bandchip">${fmtBand(h.overall)}</span><span class="d">${fmtDate(h.finishedAt)} · ${h.tasks.map(t=>`T${t.task} ${fmtBand(t.result?.taskBand)}`).join(" · ")}</span></button>`;
+  return `<button class="hist" data-id="${h.id}"><span class="t">${esc(label)}</span>${h.tasks.some(t=>!t.result)?`<span class="bandchip unmarked">Not marked</span>`:`<span class="bandchip">${fmtBand(h.overall)}</span>`}<span class="d">${fmtDate(h.finishedAt)} · ${h.tasks.map(t=>`T${t.task} ${fmtBand(t.result?.taskBand)}`).join(" · ")}</span></button>`;
 }
 
 /* ---------------- Test ---------------- */
@@ -295,17 +295,19 @@ function overallOf(test, results){
   return roundBand((t1 + 2*t2)/3);
 }
 function maybeSaveHistory(){
-  const ctx = resultCtx; if (!ctx || ctx.fromHistory) return;
-  if (!ctx.results.every(r=>r.status==="done")) return;
+  // Save as soon as no task is still being marked, including tasks whose marking failed,
+  // so the user can reopen the test from History and press "Try again" later.
+  const ctx = resultCtx; if (!ctx) return;
+  if (ctx.results.some(r=>r.status==="pending")) return;
   const H = history();
   const entry = {id:ctx.test.id, testId:ctx.test.testId, module:ctx.test.module||"academic", mode:ctx.test.mode, timed:ctx.test.timed, elapsed:ctx.test.elapsed, finishedAt:ctx.test.finishedAt, overall:overallOf(ctx.test, ctx.results),
-    tasks: ctx.test.tasks.map((t,i)=>({task:t.task, module:t.module, q:t.q, answer:t.answer, result:ctx.results[i].data}))};
+    tasks: ctx.test.tasks.map((t,i)=>({task:t.task, module:t.module, q:t.q, answer:t.answer, result:ctx.results[i].status==="done" ? ctx.results[i].data : null, model:(ctx.models||[])[i]?.text}))};
   const ix = H.findIndex(h=>h.id===entry.id); if (ix>=0) H[ix]=entry; else H.unshift(entry);
   store.set("iwc.history", H.slice(0,60));
 }
 function openHistory(id){
   const h = history().find(x=>x.id===id); if (!h) return;
-  resultCtx = {fromHistory:true, test:{id:h.id, testId:h.testId, module:h.module, mode:h.mode, timed:h.timed, elapsed:h.elapsed, finishedAt:h.finishedAt, tasks:h.tasks.map(t=>({task:t.task,module:t.module||h.module,q:t.q,answer:t.answer}))}, results:h.tasks.map(t=>({status:"done", data:t.result})), models:h.tasks.map(t=>t.model?{text:t.model}:null)};
+  resultCtx = {fromHistory:true, test:{id:h.id, testId:h.testId, module:h.module, mode:h.mode, timed:h.timed, elapsed:h.elapsed, finishedAt:h.finishedAt, tasks:h.tasks.map(t=>({task:t.task,module:t.module||h.module,q:t.q,answer:t.answer}))}, results:h.tasks.map(t=>t.result ? {status:"done", data:t.result} : {status:"error", error:"This task hasn't been marked yet. Press Try again to mark it (no extra charge)."}), models:h.tasks.map(t=>t.model?{text:t.model}:null)};
   nav("result");
 }
 function highlightEssay(text, corrections){
@@ -456,8 +458,10 @@ function renderDesc(){
 }
 
 { const f = document.getElementById("sitefoot"); if (f) f.innerHTML = footerHTML(); }
-window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (h in LEGAL_PAGES) nav(h); });
-nav(location.hash.slice(1) in LEGAL_PAGES ? location.hash.slice(1) : "home");
+document.addEventListener("click", e => { const a = e.target.closest("a[data-legal]"); if (a && !e.ctrlKey && !e.metaKey){ e.preventDefault(); nav(a.dataset.legal); } });
+function routeFromUrl(){ const p = location.pathname.replace(/^\/+|\/+$/g, ""), h = location.hash.slice(1); return h in LEGAL_PAGES ? h : p in LEGAL_PAGES ? p : null; }
+window.addEventListener("popstate", () => { const r = routeFromUrl(); if (r) nav(r); else if (view in LEGAL_PAGES) nav("home"); });
+nav(routeFromUrl() || "home");
 boot();
 /* ---------------- Buy credits ---------------- */
 let paypalLoading = null, pollTimer = null, countdownTimer = null;
@@ -540,6 +544,7 @@ function drawQr(text){
 }
 function paid(r, p){
   me = {...(me||{}), freeTests:r.freeTests, credits:r.credits}; renderAccount();
+  if (view==="buy") renderBuy();   // refresh "You have … credits" behind the box
   const draft = pendingStart;
   showModal(`<h2>Payment received</h2><p>${p.credits} credit${p.credits>1?"s were":" was"} added. You now have <b>${r.credits}</b> credit${r.credits===1?"":"s"}.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">${draft?`<button class="btn primary" id="go">Start your test</button>`:`<button class="btn primary" id="go">Start a test</button>`}<button class="btn" data-close>Close</button></div>`);
