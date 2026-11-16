@@ -50,7 +50,7 @@ create table if not exists public.orders (
   amount        numeric(12,2) not null,
   currency      text not null check (currency in ('IDR','USD')),
   status        text not null default 'pending' check (status in ('pending','paid','expired','failed')),
-  provider_ref  text,                                 -- Midtrans / DOKU transaction id, PayPal order id
+  provider_ref  text,                                 -- Midtrans transaction id / PayPal order id
   created_at    timestamptz not null default now(),
   paid_at       timestamptz
 );
@@ -61,7 +61,7 @@ alter table public.orders add column if not exists qr_url text;
 alter table public.orders add column if not exists qr_string text;
 alter table public.orders add column if not exists expires_at timestamptz;
 
--- DOKU as a QRIS provider (added later; safe to re-run): allow provider 'doku' and keep its payment page link.
+-- Earlier DOKU test integration (no longer used; kept so the constraint matches any existing rows; safe to re-run).
 alter table public.orders drop constraint if exists orders_provider_check;
 alter table public.orders add constraint orders_provider_check check (provider in ('midtrans','paypal','doku'));
 alter table public.orders add column if not exists pay_url text;

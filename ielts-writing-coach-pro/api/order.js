@@ -1,8 +1,7 @@
-// Payment status for the page to poll. For a pending QRIS order it also asks Midtrans or DOKU directly,
+// Payment status for the page to poll. For a pending QRIS order it also asks Midtrans directly,
 // so a payment is picked up even if the notification is late.
 import { handler, requireUser, db, HttpError } from "./_lib/server.js";
 import { midtransStatus, applyMidtransStatus } from "./_lib/payments.js";
-import { dokuStatus, applyDokuStatus } from "./_lib/doku.js";
 import { profileOf } from "./me.js";
 
 export default handler(["GET"], async (req) => {
@@ -14,9 +13,6 @@ export default handler(["GET"], async (req) => {
   let status = order.status;
   if (status === "pending" && order.provider === "midtrans") {
     try { status = await applyMidtransStatus(order, await midtransStatus(order.id)); } catch (e) { console.error(e); }
-  }
-  if (status === "pending" && order.provider === "doku") {
-    try { status = await applyDokuStatus(order, await dokuStatus(order.id)); } catch (e) { console.error(e); }
   }
   return { status, ...(await profileOf(user.id)) };
 });

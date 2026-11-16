@@ -5,7 +5,7 @@ IELTS Academic and General Training writing practice, marked by Claude against t
 - **Free:** each new account gets **2 free tests** (any mode).
 - **Paid:** 1 credit = 1 marked task.
 
-| Package | Credits | QRIS (DOKU or Midtrans) | PayPal |
+| Package | Credits | QRIS (Midtrans) | PayPal |
 |---|---|---|---|
 | 1 task | 1 | Rp 4,900 | – |
 | 1 full test (Task 1 + 2) | 2 | Rp 8,900 | – |
@@ -20,15 +20,13 @@ Prices are set in `public/core.js` (`PACKAGES`, `FREE_TESTS`). The server always
 Browser (public/)        Vercel functions (api/)                     Services
 index.html, app.js  ──►  /api/start   uses a free test or credits ─► Supabase (accounts, credits, tests, orders)
 core.js (shared)         /api/grade   marks one task ───────────────► Claude API (claude-sonnet-5-5)
-                         /api/pay/doku-create → DOKU payment page ──► DOKU (QRIS)
-                         /api/pay/doku-notify ◄──── payment notice ─ DOKU
-                         /api/pay/midtrans-create → QRIS code ──────► Midtrans (alternative)
+                         /api/pay/midtrans-create → QRIS code ──────► Midtrans
                          /api/pay/midtrans-notify ◄── payment notice ─ Midtrans
                          /api/pay/paypal-create / -capture ─────────► PayPal
 ```
 
 - The browser can only **read** its own data. Credits, tests and orders change only on the server.
-- Credits are added **once per order**, and only after the server confirms the payment with DOKU, Midtrans or PayPal (a notification alone is never trusted).
+- Credits are added **once per order**, and only after the server confirms the payment with Midtrans or PayPal.
 - Each task allows up to 3 marking attempts, so a failed marking can be retried without paying again. Each marked task includes one model answer.
 
 ---
@@ -58,18 +56,7 @@ Do the steps in this order. Keep a private note with every key you copy. **Never
 4. Copy the **Client ID** and **Client secret** into Supabase (**Authentication → Providers → Google**), then turn the provider on.
 5. After step 6 (Vercel), add your website address in Supabase under **Authentication → URL Configuration → Site URL**, for example `https://your-app.vercel.app`.
 
-### 4a. DOKU (QRIS, used when its keys are set)
-1. Register at **dashboard.doku.com**. For testing, also create a sandbox account at **sandbox.doku.com**.
-2. In the dashboard, open the API keys page (**Integration → API Keys** or **Settings → API Keys**) and copy **Client ID** → `DOKU_CLIENT_ID` and **Secret Key** → `DOKU_SECRET_KEY`. Use sandbox keys and `DOKU_IS_PRODUCTION=false` first.
-3. Make sure **DOKU Checkout** and **QRIS** are active on the account.
-4. Set the **Notification URL** (in the dashboard's notification / payment settings) to:
-   `https://www.writingcoach.id/api/pay/doku-notify`
-5. In Supabase, run `supabase/schema.sql` again (it is safe to re-run). It allows orders with provider `doku`.
-6. To go live, use the **production** keys and set `DOKU_IS_PRODUCTION=true`.
-
-Customers pay on DOKU's own page (opened in a new tab), which shows the QRIS code. When `DOKU_CLIENT_ID` is set, QRIS goes through DOKU; set `QRIS_PROVIDER=midtrans` to switch back.
-
-### 4b. Midtrans (QRIS, alternative)
+### 4. Midtrans (QRIS)
 1. Register at **midtrans.com**. You can use the **Sandbox** (test mode) straight away, before your account is verified.
 2. Open **Settings → Access Keys** and copy the **Server Key** → `MIDTRANS_SERVER_KEY`. Use the sandbox key for now.
 3. After step 6, open **Settings → Payment → Notification URL** (sandbox first, and later production too) and set it to:
@@ -134,5 +121,5 @@ Check your real costs after the first 20–30 paid tests (Anthropic console → 
 ## Files
 - `public/index.html`, `public/app.js`: the page.
 - `public/core.js`: the question bank, descriptors, structures, prices and marking prompt. The browser and the server share it.
-- `api/*.js`: server endpoints. `api/_lib/` holds shared server code (Supabase, Claude, DOKU, Midtrans, PayPal).
+- `api/*.js`: server endpoints. `api/_lib/` holds shared server code (Supabase, Claude, Midtrans, PayPal).
 - `supabase/schema.sql`: database tables, security rules and credit functions.
