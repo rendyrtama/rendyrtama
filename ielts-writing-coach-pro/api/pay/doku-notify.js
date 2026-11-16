@@ -3,7 +3,9 @@
 import { handler, db } from "../_lib/server.js";
 import { dokuStatus, applyDokuStatus } from "../_lib/doku.js";
 
-export default handler(["POST"], async (req, body) => {
+export default handler(["POST", "GET", "HEAD"], async (req, body) => {
+  // DOKU may check the URL (e.g. when saving it in the dashboard) with an empty or non-POST request: answer 200.
+  if (req.method !== "POST") return { ok: true };
   const orderId = typeof body?.order?.invoice_number === "string" ? body.order.invoice_number : "";
   if (!/^WC-[A-Z0-9-]{5,40}$/.test(orderId)) return { ok: true };
   const { data: order } = await db().from("orders").select("*").eq("id", orderId).maybeSingle();
