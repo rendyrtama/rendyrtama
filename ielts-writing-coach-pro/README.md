@@ -5,7 +5,7 @@ IELTS Academic and General Training writing practice, marked by Claude against t
 - **Free:** each new account gets **2 free tests** (any mode).
 - **Paid:** 1 credit = 1 marked task.
 
-| Package | Credits | QRIS (DOKU) | PayPal |
+| Package | Credits | QRIS (DOKU or Midtrans) | PayPal |
 |---|---|---|---|
 | 1 task | 1 | Rp 4,900 | – |
 | 1 full test (Task 1 + 2) | 2 | Rp 8,900 | – |
@@ -22,11 +22,13 @@ index.html, app.js  ──►  /api/start   uses a free test or credits ─► S
 core.js (shared)         /api/grade   marks one task ───────────────► Claude API (claude-sonnet-5-5)
                          /api/pay/doku-create → DOKU payment page ──► DOKU (QRIS)
                          /api/pay/doku-notify ◄──── payment notice ─ DOKU
+                         /api/pay/midtrans-create → QRIS code ──────► Midtrans (alternative)
+                         /api/pay/midtrans-notify ◄── payment notice ─ Midtrans
                          /api/pay/paypal-create / -capture ─────────► PayPal
 ```
 
 - The browser can only **read** its own data. Credits, tests and orders change only on the server.
-- Credits are added **once per order**, and only after the server confirms the payment with DOKU or PayPal (a notification alone is never trusted).
+- Credits are added **once per order**, and only after the server confirms the payment with DOKU, Midtrans or PayPal (a notification alone is never trusted).
 - Each task allows up to 3 marking attempts, so a failed marking can be retried without paying again. Each marked task includes one model answer.
 
 ---
@@ -56,7 +58,7 @@ Do the steps in this order. Keep a private note with every key you copy. **Never
 4. Copy the **Client ID** and **Client secret** into Supabase (**Authentication → Providers → Google**), then turn the provider on.
 5. After step 6 (Vercel), add your website address in Supabase under **Authentication → URL Configuration → Site URL**, for example `https://your-app.vercel.app`.
 
-### 4. DOKU (QRIS)
+### 4a. DOKU (QRIS, used when its keys are set)
 1. Register at **dashboard.doku.com**. For testing, also create a sandbox account at **sandbox.doku.com**.
 2. In the dashboard, open the API keys page (**Integration → API Keys** or **Settings → API Keys**) and copy **Client ID** → `DOKU_CLIENT_ID` and **Secret Key** → `DOKU_SECRET_KEY`. Use sandbox keys and `DOKU_IS_PRODUCTION=false` first.
 3. Make sure **DOKU Checkout** and **QRIS** are active on the account.
@@ -65,7 +67,14 @@ Do the steps in this order. Keep a private note with every key you copy. **Never
 5. In Supabase, run `supabase/schema.sql` again (it is safe to re-run). It allows orders with provider `doku`.
 6. To go live, use the **production** keys and set `DOKU_IS_PRODUCTION=true`.
 
-Customers pay on DOKU's own page (opened in a new tab), which shows the QRIS code.
+Customers pay on DOKU's own page (opened in a new tab), which shows the QRIS code. When `DOKU_CLIENT_ID` is set, QRIS goes through DOKU; set `QRIS_PROVIDER=midtrans` to switch back.
+
+### 4b. Midtrans (QRIS, alternative)
+1. Register at **midtrans.com**. You can use the **Sandbox** (test mode) straight away, before your account is verified.
+2. Open **Settings → Access Keys** and copy the **Server Key** → `MIDTRANS_SERVER_KEY`. Use the sandbox key for now.
+3. After step 6, open **Settings → Payment → Notification URL** (sandbox first, and later production too) and set it to:
+   `https://<your-app>.vercel.app/api/pay/midtrans-notify`
+4. To go live, complete verification (KTP, NPWP, bank account) and make sure **QRIS** is activated on your account. Then switch to the **production** Server Key and set `MIDTRANS_IS_PRODUCTION=true`.
 
 ### 5. PayPal (bundles, in US dollars)
 1. Go to **developer.paypal.com → Apps & Credentials** and click **Create App**. Start on the **Sandbox** tab.
@@ -78,19 +87,19 @@ Customers pay on DOKU's own page (opened in a new tab), which shows the QRIS cod
 2. Set **Root Directory** to `ielts-writing-coach-pro`. The framework preset is **Other**, and nothing needs building.
 3. Under **Environment Variables**, add every value from `.env.example` with your real keys.
 4. Click **Deploy**. Your site will be at `https://<project-name>.vercel.app`. You can add your own domain later under **Settings → Domains**.
-5. Go back and finish step 3.5 (Supabase Site URL) and step 4.4 (DOKU Notification URL).
+5. Go back and finish step 3.5 (Supabase Site URL) and step 4.3 (Midtrans Notification URL).
 
 Note: marking can take up to about 90 seconds, so `vercel.json` gives the marking functions 120 seconds. If Vercel rejects that on your plan, lower it to the maximum Vercel shows.
 
 ### 7. Test everything in sandbox mode (no real money)
 1. Open your site and sign in with Google. You should see **2 free · 0 credits**.
 2. Do two free tests and check the marking works.
-3. Start a third test. You'll be sent to **Credits**. Pay with QRIS: DOKU's page opens in a new tab; pay the QRIS code with DOKU's sandbox simulator. Your credits should appear within a few seconds, and the test should start.
+3. Start a third test. You'll be sent to **Credits**. Pay with QRIS: copy the QR image link from the payment box and pay it in the **Midtrans QRIS simulator** (linked from the Midtrans sandbox docs). Your credits should appear within a few seconds, and the test should start.
 4. Buy a bundle with PayPal using a **sandbox buyer account** (developer.paypal.com → Sandbox → Accounts).
 5. In Supabase **Table Editor**, check the `orders` and `profiles` rows.
 
 ### 8. Go live
-- [ ] DOKU production keys set, `DOKU_IS_PRODUCTION=true`, QRIS active, production Notification URL set
+- [ ] Midtrans verified, QRIS active, production Server Key set, `MIDTRANS_IS_PRODUCTION=true`, production Notification URL set
 - [ ] PayPal live app keys set, `PAYPAL_ENV=live`
 - [ ] Anthropic spend limit set
 - [ ] One real payment of Rp 4,900 tested end to end
@@ -105,7 +114,7 @@ Note: marking can take up to about 90 seconds, so `vercel.json` gives the markin
 | Marking one task (Claude Sonnet 5.5) | ≈ Rp 1,200 |
 | One model answer | ≈ Rp 500–1,000 |
 | Each new user's 2 free tests | up to ≈ Rp 5,000 (2 full tests) |
-| QRIS fee (DOKU) | about 0.7% of the payment (check DOKU's current pricing) |
+| QRIS fee (Midtrans) | about 0.7% of the payment (check Midtrans's current pricing) |
 | PayPal fee | a percentage plus a fixed fee per payment (check PayPal's current pricing) |
 | Vercel, Supabase | free tiers are enough to start |
 
@@ -125,5 +134,5 @@ Check your real costs after the first 20–30 paid tests (Anthropic console → 
 ## Files
 - `public/index.html`, `public/app.js`: the page.
 - `public/core.js`: the question bank, descriptors, structures, prices and marking prompt. The browser and the server share it.
-- `api/*.js`: server endpoints. `api/_lib/` holds shared server code (Supabase, Claude, DOKU, PayPal).
+- `api/*.js`: server endpoints. `api/_lib/` holds shared server code (Supabase, Claude, DOKU, Midtrans, PayPal).
 - `supabase/schema.sql`: database tables, security rules and credit functions.
