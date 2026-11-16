@@ -124,7 +124,7 @@ function orderStatus(o){
   if (o.status==="paid") return `<span class="pill paid">Paid</span>`;
   if (o.status==="expired") return `<span class="pill off">Expired</span>`;
   if (o.status==="failed") return `<span class="pill off">Failed</span>`;
-  if (o.expires_at && o.provider==="doku") return qrisResumable(o) ? `<span class="pill wait">Waiting for payment</span>` : `<span class="pill off">Not completed</span>`;
+  if (o.expires_at && (o.provider==="midtrans" || o.provider==="doku")) return qrisResumable(o) ? `<span class="pill wait">Waiting for payment</span>` : `<span class="pill off">Not completed</span>`;
   return Date.now() - new Date(o.created_at).getTime() > 30*60e3 ? `<span class="pill off">Not completed</span>` : `<span class="pill wait">Waiting for payment</span>`;
 }
 async function renderPurchases(){
@@ -134,7 +134,8 @@ async function renderPurchases(){
     <div id="orders"><p class="muted"><span class="spinner"></span> Loading your purchases…</p></div></main>`;
   let rows = [], err = null;
   try {
-    let r = await sb.from("orders").select("id,package,credits,provider,amount,currency,status,created_at,paid_at,pay_url,expires_at").order("created_at", {ascending:false}).limit(200);
+    let r = await sb.from("orders").select("id,package,credits,provider,amount,currency,status,created_at,paid_at,qr_url,qr_string,pay_url,expires_at").order("created_at", {ascending:false}).limit(200);
+    if (r.error) r = await sb.from("orders").select("id,package,credits,provider,amount,currency,status,created_at,paid_at,qr_url,qr_string,expires_at").order("created_at", {ascending:false}).limit(200);
     if (r.error) r = await sb.from("orders").select("id,package,credits,provider,amount,currency,status,created_at,paid_at").order("created_at", {ascending:false}).limit(200);
     if (r.error) throw r.error; rows = r.data || [];
   } catch(e){ err = e; }
@@ -145,7 +146,7 @@ async function renderPurchases(){
   const money = o => o.currency==="IDR" ? rupiah(o.amount) : "US$" + Number(o.amount).toFixed(2);
   box.innerHTML = `<p style="margin:14px 0 0;font-size:14px"><b>${paid.length}</b> paid ${paid.length===1?"purchase":"purchases"} · <b>${paid.reduce((a,o)=>a+o.credits,0)}</b> credits bought</p>
     <div class="tbl"><table><thead><tr><th>Date</th><th>Order</th><th>Package</th><th>Method</th><th class="num">Amount</th><th class="num">Credits</th><th>Status</th><th><span class="sr">Action</span></th></tr></thead>
-    <tbody>${rows.map(o=>`<tr><td>${esc(fmtDate(o.created_at))}</td><td style="font-family:var(--f-mono);font-size:13px">${esc(o.id)}</td><td>${esc(PACKAGES[o.package]?.label||o.package)}</td><td>${o.provider==="paypal"?"PayPal":"QRIS"}</td><td class="num">${esc(money(o))}</td><td class="num">${o.credits}</td><td>${orderStatus(o)}</td><td>${qrisResumable(o)?`<button class="btn small primary" data-resume="${esc(o.id)}">Continue payment</button>`:""}</td></tr>`).join("")}</tbody></table></div>`;
+    <tbody>${rows.map(o=>`<tr><td>${esc(fmtDate(o.created_at))}</td><td style="font-family:var(--f-mono);font-size:13px">${esc(o.id)}</td><td>${esc(PACKAGES[o.package]?.label||o.package)}</td><td>${o.provider==="paypal"?"PayPal":o.provider==="doku"?"QRIS (DOKU)":"QRIS"}</td><td class="num">${esc(money(o))}</td><td class="num">${o.credits}</td><td>${orderStatus(o)}</td><td>${qrisResumable(o)?`<button class="btn small primary" data-resume="${esc(o.id)}">Continue payment</button>`:""}</td></tr>`).join("")}</tbody></table></div>`;
   box.querySelectorAll("[data-resume]").forEach(b => b.onclick = () => openQrisBox(rows.find(o => o.id===b.dataset.resume)));
 }
 function accountBanner(){
@@ -628,7 +629,7 @@ function renderBuy(){
 async function showUnpaidReminder(){
   if (!sb || !session) return;
   try {
-    const r = await sb.from("orders").select("id,package,provider,status,pay_url,expires_at").eq("provider","doku").eq("status","pending")
+    const r = await sb.from("orders").select("id,package,provider,status,qr_url,qr_string,pay_url,expires_at").eq("provider", cfg?.qrisProvider==="doku" ? "doku" : "midtrans").eq("status","pending")
       .gt("expires_at", new Date().toISOString()).order("created_at", {ascending:false}).limit(1);
     const o = r.data?.[0]; if (r.error || !qrisResumable(o) || view!=="buy") return;
     const slot = $("#unpaid"); if (!slot) return;
@@ -645,10 +646,44 @@ function showModal(html, opts = {}){
   return m;
 }
 function closeModal(){ clearInterval(pollTimer); clearInterval(countdownTimer); const m = $("#modal"); if (m) m.hidden = true; }
-/* Is this unpaid QRIS (DOKU) payment still usable? */
-const qrisResumable = o => o && o.provider==="doku" && o.status==="pending" && o.pay_url && o.expires_at && new Date(o.expires_at).getTime() > Date.now() + 20e3;
-const payQris = pkgId => payDoku(pkgId);
-const openQrisBox = o => openDokuBox(o);
+async function payQris(pkgId){
+  if (cfg?.qrisProvider==="doku") return payDoku(pkgId);
+  const p = PACKAGES[pkgId];
+  showModal(`<h2>Pay ${rupiah(p.idr)}</h2><p class="muted"><span class="spinner"></span> Creating your QRIS code…</p>`, {sticky:true});
+  let r;
+  try { r = await api("/api/pay/midtrans-create", {pkg:pkgId}); }
+  catch(e){ showModal(`<h2>Couldn't create the payment</h2><p>${esc(e.error)}</p><button class="btn" data-close>Close</button>`); return; }
+  openQrisBox({id:r.orderId, package:pkgId, qr_url:r.qrUrl, qr_string:r.qrString, expires_at:r.expiresAt});
+}
+/* Is this unpaid QRIS order's code still usable? */
+const qrisResumable = o => o && o.status==="pending" && o.expires_at && new Date(o.expires_at).getTime() > Date.now() + 20e3
+  && ((o.provider==="midtrans" && (o.qr_url || o.qr_string)) || (o.provider==="doku" && o.pay_url));
+/* Shows a QRIS code (new or reopened) and waits for the payment. */
+function openQrisBox(o){
+  if (o.provider==="doku") return openDokuBox(o);
+  const p = PACKAGES[o.package], pkgId = o.package;
+  clearInterval(pollTimer); clearInterval(countdownTimer);
+  const m = showModal(`<div class="eyebrow">QRIS · ${esc(p.label)}</div><h2 style="margin:4px 0 2px">${rupiah(p.idr)}</h2>
+    <p class="muted" style="font-size:13px;margin:0 0 12px">Order ${esc(o.id)}</p>
+    <div class="qr" id="qr">${o.qr_url?`<img src="${esc(o.qr_url)}" alt="QRIS payment code" width="240" height="240">`:""}</div>
+    <p style="font-size:14px">Open DANA, GoPay, OVO, ShopeePay or your banking app, choose <b>Scan / QRIS</b>, and scan this code. Credits are added as soon as the payment arrives.</p>
+    ${cfg?.midtransProduction?"":`<p class="banner warn" style="font-size:13px">Test mode: no real money. Pay using the Midtrans sandbox simulator.</p>`}
+    <p id="paystate" class="muted"><span class="spinner"></span> Waiting for payment · <span id="paytime">15:00</span> left</p>
+    <p class="muted" style="font-size:12px">Closed this by accident? Reopen it from <b>Purchase history</b> in your profile menu, or from the Credits page, until the code expires.</p>
+    <button class="btn" data-close>Close</button>`, {sticky:true});
+  if (!o.qr_url && o.qr_string) drawQr(o.qr_string);
+  const until = o.expires_at ? new Date(String(o.expires_at).includes("T") ? o.expires_at : String(o.expires_at).replace(" ", "T") + "+07:00").getTime() : Date.now() + 15*60e3;
+  const tickClock = () => { const el = $("#paytime"); if (el) el.textContent = fmtTime((until-Date.now())/1000); };
+  tickClock(); countdownTimer = setInterval(tickClock, 1000);
+  pollTimer = setInterval(async () => {
+    if (m.hidden) return closeModal();
+    try {
+      const s = await api("/api/order?id=" + encodeURIComponent(o.id));
+      if (s.status==="paid"){ closeModal(); paid(s, p); }
+      else if (s.status==="expired" || s.status==="failed" || Date.now() > until + 60e3){ clearInterval(pollTimer); clearInterval(countdownTimer); $("#paystate").innerHTML = `This QR code has expired. <button class="btn small" id="newqr">Make a new code</button>`; $("#newqr").onclick = () => payQris(pkgId); }
+    } catch {}
+  }, 3000);
+}
 /* DOKU: the QRIS code is shown on DOKU's own payment page, opened in a new tab. */
 async function payDoku(pkgId){
   const p = PACKAGES[pkgId];
@@ -691,11 +726,16 @@ async function resumeReturnedOrder(){
   window.history.replaceState(null, "", location.pathname + location.hash);
   if (!session || !/^WC-[A-Z0-9-]{5,40}$/.test(id)) return;
   try {
-    const r = await sb.from("orders").select("id,package,provider,status,pay_url,expires_at").eq("id", id).maybeSingle();
+    const r = await sb.from("orders").select("id,package,provider,status,pay_url,qr_url,qr_string,expires_at").eq("id", id).maybeSingle();
     const o = r.data; if (!o || !PACKAGES[o.package]) return;
     if (o.status==="paid"){ const s = await api("/api/order?id=" + encodeURIComponent(id)); return paid(s, PACKAGES[o.package]); }
     if (o.status==="pending") openQrisBox(o);
   } catch {}
+}
+function drawQr(text){
+  const go = () => { const el = $("#qr"); if (el && window.QRCode) new window.QRCode(el, {text, width:240, height:240}); };
+  if (window.QRCode) return go();
+  const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"; s.onload = go; document.head.appendChild(s);
 }
 function paid(r, p){
   me = {...(me||{}), freeTests:r.freeTests, credits:r.credits}; renderAccount();
