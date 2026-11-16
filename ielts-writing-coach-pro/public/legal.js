@@ -7,7 +7,7 @@ export const COMPANY = {
   brand: "Writing Coach",
   address: "Jl. Tegojuran",
   city: "Tulungagung, Jawa Timur, Indonesia",
-  email: "naratamajaya11@gmail.com",
+  email: "support@writingcoach.id",
   whatsapp: "+62 812-3355-4732",
   hours: "Senin–Jumat, 09.00–17.00 WIB",
   hoursEn: "Monday–Friday, 09:00–17:00 WIB (UTC+7)",
