@@ -46,7 +46,7 @@ create table if not exists public.orders (
   user_id       uuid not null references public.profiles(id) on delete cascade,
   package       text not null,
   credits       integer not null check (credits > 0),
-  provider      text not null check (provider in ('midtrans','dana','xendit','paypal','doku')),
+  provider      text not null check (provider in ('midtrans','dana','xendit','paypal')),
   amount        numeric(12,2) not null,
   currency      text not null check (currency in ('IDR','USD')),
   status        text not null default 'pending' check (status in ('pending','paid','expired','failed')),
@@ -61,10 +61,10 @@ alter table public.orders add column if not exists qr_url text;
 alter table public.orders add column if not exists qr_string text;
 alter table public.orders add column if not exists expires_at timestamptz;
 
--- Providers: Midtrans, DANA and Xendit (QRIS), PayPal; 'doku' only for rows from an earlier test (safe to re-run).
+-- Payment providers: Xendit, Midtrans and DANA (QRIS), PayPal (USD bundles). Safe to re-run.
 alter table public.orders drop constraint if exists orders_provider_check;
-alter table public.orders add constraint orders_provider_check check (provider in ('midtrans','dana','xendit','paypal','doku'));
-alter table public.orders add column if not exists pay_url text;
+alter table public.orders add constraint orders_provider_check check (provider in ('midtrans','dana','xendit','paypal'));
+alter table public.orders drop column if exists pay_url;   -- only used by an earlier test integration
 
 -- Row-level security: users may read only their own rows; nobody writes from the browser.
 alter table public.profiles enable row level security;
