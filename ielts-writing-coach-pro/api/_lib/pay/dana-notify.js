@@ -1,7 +1,7 @@
 // DANA finish notification. The body is never trusted on its own: the order is always confirmed
 // with DANA's Query Payment API before any credits are added. DANA expects this reply on success.
-import { handler, db } from "../_lib/server.js";
-import { danaStatus, applyDanaStatus } from "../_lib/dana.js";
+import { handler, db } from "../server.js";
+import { danaStatus, applyDanaStatus } from "../dana.js";
 
 const OK = { responseCode: "2005600", responseMessage: "Successful" };
 

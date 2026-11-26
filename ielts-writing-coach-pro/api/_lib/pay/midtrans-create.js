@@ -1,7 +1,7 @@
 // Creates a QRIS payment for a package and returns the QR code to show.
-import { handler, requireUser, db, HttpError, newOrderId } from "../_lib/server.js";
-import { midtransChargeQris } from "../_lib/payments.js";
-import { PACKAGES } from "../../public/core.js";
+import { handler, requireUser, db, HttpError, newOrderId } from "../server.js";
+import { midtransChargeQris } from "../payments.js";
+import { PACKAGES } from "../../../public/core.js";
 
 export default handler(["POST"], async (req, body) => {
   const user = await requireUser(req);

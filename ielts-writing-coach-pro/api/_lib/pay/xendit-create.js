@@ -1,8 +1,8 @@
 // Creates a Xendit QRIS payment for a package and returns the QR code to show.
 import QRCode from "qrcode";
-import { handler, requireUser, db, HttpError, newOrderId } from "../_lib/server.js";
-import { xenditCreateQris } from "../_lib/xendit.js";
-import { PACKAGES } from "../../public/core.js";
+import { handler, requireUser, db, HttpError, newOrderId } from "../server.js";
+import { xenditCreateQris } from "../xendit.js";
+import { PACKAGES } from "../../../public/core.js";
 
 export default handler(["POST"], async (req, body) => {
   const user = await requireUser(req);

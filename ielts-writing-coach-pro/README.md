@@ -148,5 +148,5 @@ Check your real costs after the first 20–30 paid tests (Anthropic console → 
 ## Files
 - `public/index.html`, `public/app.js`: the page.
 - `public/core.js`: the question bank, descriptors, structures, prices and marking prompt. The browser and the server share it.
-- `api/*.js`: server endpoints. `api/_lib/` holds shared server code (Supabase, Claude, Xendit, Midtrans, DANA, PayPal).
+- `api/*.js`: server endpoints. All payment URLs (`/api/pay/<action>`) go through one function, `api/pay/[action].js`, whose handlers live in `api/_lib/pay/`: Vercel's Hobby plan allows at most 12 functions per deployment, and files in `api/_lib/` don't count. `api/_lib/` also holds shared server code (Supabase, Claude, Xendit, Midtrans, DANA, PayPal).
 - `supabase/schema.sql`: database tables, security rules and credit functions.

@@ -1,8 +1,8 @@
 // Creates a DANA QRIS payment for a package and returns the QRIS code to show.
-import { handler, requireUser, db, HttpError, newOrderId } from "../_lib/server.js";
+import { handler, requireUser, db, HttpError, newOrderId } from "../server.js";
 import QRCode from "qrcode";
-import { danaCreateQris } from "../_lib/dana.js";
-import { PACKAGES } from "../../public/core.js";
+import { danaCreateQris } from "../dana.js";
+import { PACKAGES } from "../../../public/core.js";
 
 export default handler(["POST"], async (req, body) => {
   const user = await requireUser(req);
