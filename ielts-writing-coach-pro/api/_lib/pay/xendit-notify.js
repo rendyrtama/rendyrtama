@@ -1,7 +1,7 @@
 // Xendit webhook (payment.succeeded and friends). The x-callback-token header must match the dashboard's
 // verification token, and the order is still confirmed with Xendit's API before any credits are added.
-import { handler, db, HttpError } from "../_lib/server.js";
-import { xenditStatus, applyXenditStatus, xenditTokenOk } from "../_lib/xendit.js";
+import { handler, db, HttpError } from "../server.js";
+import { xenditStatus, applyXenditStatus, xenditTokenOk } from "../xendit.js";
 
 export default handler(["POST", "GET", "HEAD"], async (req, body) => {
   if (req.method !== "POST") return { ok: true };

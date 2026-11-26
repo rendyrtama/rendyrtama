@@ -2,8 +2,8 @@
 // A notification is only a signal: credits are added after the app asks Midtrans directly
 // (with its own server key) for the order's real status and checks the amount. So a forged
 // notification can't add credits; at most it makes the app look up an order that exists.
-import { handler, db } from "../_lib/server.js";
-import { midtransSignatureOk, midtransStatus, applyMidtransStatus } from "../_lib/payments.js";
+import { handler, db } from "../server.js";
+import { midtransSignatureOk, midtransStatus, applyMidtransStatus } from "../payments.js";
 
 export default handler(["POST"], async (req, body) => {
   const orderId = typeof body?.order_id === "string" ? body.order_id : "";

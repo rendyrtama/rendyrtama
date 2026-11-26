@@ -1,7 +1,7 @@
 // Captures an approved PayPal order and adds the credits.
-import { handler, requireUser, db, HttpError } from "../_lib/server.js";
-import { paypal, creditOrder } from "../_lib/payments.js";
-import { profileOf } from "../me.js";
+import { handler, requireUser, db, HttpError } from "../server.js";
+import { paypal, creditOrder } from "../payments.js";
+import { profileOf } from "../../me.js";
 
 export default handler(["POST"], async (req, body) => {
   const user = await requireUser(req);

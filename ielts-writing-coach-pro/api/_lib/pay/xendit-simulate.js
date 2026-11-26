@@ -1,7 +1,7 @@
 // Test mode only: "pays" the signed-in user's pending Xendit order, so the whole flow can be tried without money.
 // Refused whenever the secret key is a live key.
-import { handler, requireUser, db, HttpError } from "../_lib/server.js";
-import { xenditIsTest, xenditSimulate } from "../_lib/xendit.js";
+import { handler, requireUser, db, HttpError } from "../server.js";
+import { xenditIsTest, xenditSimulate } from "../xendit.js";
 
 export default handler(["POST"], async (req, body) => {
   if (!xenditIsTest()) throw new HttpError(403, "Simulated payments are only available in test mode.");

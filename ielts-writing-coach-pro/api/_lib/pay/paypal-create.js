@@ -1,7 +1,7 @@
 // Creates a PayPal order (USD, bundles only).
-import { handler, requireUser, db, HttpError, newOrderId } from "../_lib/server.js";
-import { paypal } from "../_lib/payments.js";
-import { PACKAGES } from "../../public/core.js";
+import { handler, requireUser, db, HttpError, newOrderId } from "../server.js";
+import { paypal } from "../payments.js";
+import { PACKAGES } from "../../../public/core.js";
 
 export default handler(["POST"], async (req, body) => {
   const user = await requireUser(req);
