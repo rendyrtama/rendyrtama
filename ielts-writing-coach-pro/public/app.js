@@ -124,7 +124,7 @@ function orderStatus(o){
   if (o.status==="paid") return `<span class="pill paid">Paid</span>`;
   if (o.status==="expired") return `<span class="pill off">Expired</span>`;
   if (o.status==="failed") return `<span class="pill off">Failed</span>`;
-  if (o.expires_at && (o.provider==="midtrans" || o.provider==="dana")) return qrisResumable(o) ? `<span class="pill wait">Waiting for payment</span>` : `<span class="pill off">Not completed</span>`;
+  if (o.expires_at && QRIS_PROVIDERS.includes(o.provider)) return qrisResumable(o) ? `<span class="pill wait">Waiting for payment</span>` : `<span class="pill off">Not completed</span>`;
   return Date.now() - new Date(o.created_at).getTime() > 30*60e3 ? `<span class="pill off">Not completed</span>` : `<span class="pill wait">Waiting for payment</span>`;
 }
 async function renderPurchases(){
@@ -628,7 +628,7 @@ function renderBuy(){
 async function showUnpaidReminder(){
   if (!sb || !session) return;
   try {
-    const r = await sb.from("orders").select("id,package,provider,status,qr_url,qr_string,expires_at").eq("provider", cfg?.qrisProvider==="dana" ? "dana" : "midtrans").eq("status","pending")
+    const r = await sb.from("orders").select("id,package,provider,status,qr_url,qr_string,expires_at").eq("provider", qrisProvider()).eq("status","pending")
       .gt("expires_at", new Date().toISOString()).order("created_at", {ascending:false}).limit(1);
     const o = r.data?.[0]; if (r.error || !qrisResumable(o) || view!=="buy") return;
     const slot = $("#unpaid"); if (!slot) return;
@@ -649,12 +649,16 @@ async function payQris(pkgId){
   const p = PACKAGES[pkgId];
   showModal(`<h2>Pay ${rupiah(p.idr)}</h2><p class="muted"><span class="spinner"></span> Creating your QRIS code…</p>`, {sticky:true});
   let r;
-  try { r = await api(cfg?.qrisProvider==="dana" ? "/api/pay/dana-create" : "/api/pay/midtrans-create", {pkg:pkgId}); }
+  try { r = await api(`/api/pay/${qrisProvider()}-create`, {pkg:pkgId}); }
   catch(e){ showModal(`<h2>Couldn't create the payment</h2><p>${esc(e.error)}</p><button class="btn" data-close>Close</button>`); return; }
-  openQrisBox({id:r.orderId, package:pkgId, provider:cfg?.qrisProvider==="dana"?"dana":"midtrans", qr_url:r.qrUrl, qr_string:r.qrString, expires_at:r.expiresAt});
+  openQrisBox({id:r.orderId, package:pkgId, provider:qrisProvider(), qr_url:r.qrUrl, qr_string:r.qrString, expires_at:r.expiresAt});
 }
+/* QRIS providers the site knows; which one makes new codes comes from /api/config. */
+const QRIS_PROVIDERS = ["midtrans", "dana", "xendit"];
+const qrisProvider = () => QRIS_PROVIDERS.includes(cfg?.qrisProvider) ? cfg.qrisProvider : "midtrans";
+const PROVIDER_NAME = {midtrans:"Midtrans", dana:"DANA", xendit:"Xendit"};
 /* Is this unpaid QRIS order's code still usable? */
-const qrisResumable = o => o && (o.provider==="midtrans" || o.provider==="dana") && o.status==="pending" && (o.qr_url || o.qr_string) && o.expires_at && new Date(o.expires_at).getTime() > Date.now() + 20e3;
+const qrisResumable = o => o && QRIS_PROVIDERS.includes(o.provider) && o.status==="pending" && (o.qr_url || o.qr_string) && o.expires_at && new Date(o.expires_at).getTime() > Date.now() + 20e3;
 /* Shows a QRIS code (new or reopened) and waits for the payment. */
 function openQrisBox(o){
   const p = PACKAGES[o.package], pkgId = o.package;
@@ -663,11 +667,13 @@ function openQrisBox(o){
     <p class="muted" style="font-size:13px;margin:0 0 12px">Order ${esc(o.id)}</p>
     <div class="qr" id="qr">${o.qr_url?`<img src="${esc(o.qr_url)}" alt="QRIS payment code" width="240" height="240">`:""}</div>
     <p style="font-size:14px">Open DANA, GoPay, OVO, ShopeePay or your banking app, choose <b>Scan / QRIS</b>, and scan this code. Credits are added as soon as the payment arrives.</p>
-    ${cfg?.qrisProduction?"":`<p class="banner warn" style="font-size:13px">Test mode: no real money. Pay using the ${o.provider==="dana"?"DANA":"Midtrans"} sandbox simulator.</p>`}
+    ${cfg?.qrisProduction?"":`<p class="banner warn" style="font-size:13px">Test mode: no real money. ${o.provider==="xendit"?`<button class="btn small" id="simpay" style="margin-left:6px">Simulate payment</button>`:`Pay using the ${PROVIDER_NAME[o.provider]||"provider"} sandbox simulator.`}</p>`}
     <p id="paystate" class="muted"><span class="spinner"></span> Waiting for payment · <span id="paytime">15:00</span> left</p>
     <p class="muted" style="font-size:12px">Closed this by accident? Reopen it from <b>Purchase history</b> in your profile menu, or from the Credits page, until the code expires.</p>
     <button class="btn" data-close>Close</button>`, {sticky:true});
   if (!o.qr_url && o.qr_string) drawQr(o.qr_string);
+  const sim = $("#simpay");
+  if (sim) sim.onclick = async () => { sim.disabled = true; sim.textContent = "Simulating…"; try { await api("/api/pay/xendit-simulate", {orderId:o.id}); sim.textContent = "Paid (test) – waiting for confirmation"; } catch(e){ sim.disabled = false; sim.textContent = "Simulate payment"; alert(e.error); } };
   const until = o.expires_at ? new Date(String(o.expires_at).includes("T") ? o.expires_at : String(o.expires_at).replace(" ", "T") + "+07:00").getTime() : Date.now() + 15*60e3;
   const tickClock = () => { const el = $("#paytime"); if (el) el.textContent = fmtTime((until-Date.now())/1000); };
   tickClock(); countdownTimer = setInterval(tickClock, 1000);
